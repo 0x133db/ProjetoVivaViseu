@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1026032468341",
+    "project_id": "vivaviseu",
+    "storage_bucket": "vivaviseu.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1026032468341:android:d6772f5b82f56776c1d33c",
+        "android_client_info": {
+          "package_name": "com.example.vivaviseu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1026032468341-srvqpct2ks9qr5agg6tjul5u13crl8tv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAe0g30P8q1F_L4cnvAhyw8eTgrxZ8fWgw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1026032468341-srvqpct2ks9qr5agg6tjul5u13crl8tv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
