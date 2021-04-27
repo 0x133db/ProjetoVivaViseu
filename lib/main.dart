@@ -1,7 +1,10 @@
 //import 'dart:html';
+import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vivaviseu/config/router.dart';
+import 'package:vivaviseu/config/routes.dart';
 import 'package:vivaviseu/eventdetails.dart';
 import 'package:vivaviseu/home.dart';
 import 'package:vivaviseu/login.dart';
@@ -12,19 +15,33 @@ Future<void> main() async {
   runApp(App());
 }
 
-class App extends StatelessWidget {
-  // This widget is the root of your application.
+class App extends StatefulWidget {
+  @override
+  _AppState createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+
+  _AppState(){
+      final FluroRouter router = FluroRouter();
+      Routes.configureRoutes(router);
+      Router_.router = router;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
+    var app = MaterialApp(
+      title: 'Viva Viseu',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         accentColor: Colors.amberAccent,
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomeScreen(),
+      onGenerateRoute: Router_.router.generator,
+      //home: HomeScreen(),
     );
+    return app;
   }
 }
 

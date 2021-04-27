@@ -7,13 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 //import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:vivaviseu/calendar.dart';
+import 'package:vivaviseu/config/router.dart';
 import 'package:vivaviseu/eventdetails.dart';
 import 'package:vivaviseu/favorites.dart';
 import 'package:vivaviseu/login.dart';
+import 'package:vivaviseu/main.dart';
 import 'package:vivaviseu/objects.dart';
 import 'package:http/http.dart' as http;
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fluro/fluro.dart';
+import 'dart:async';
 
 int num = 0;
 
@@ -27,7 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   final List<Widget> _widgetOptions = <Widget>[
     HighlightedEvents(),
-    //Text('Eventos'),
     Calendar(),
     Favorites(),
   ];
@@ -52,12 +54,11 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.all(Radius.circular(20)),
             color: Color.fromARGB(255, 47, 59, 76),
           ),
-          height: screenHeight / 15,
-          width: screenWidth,
+          height: screenHeight / 15, //apagar
+          width: screenWidth, //apagar
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(10)),
-            child: BottomNavigationBar(
-              //Barra de navegação da App
+            child: BottomNavigationBar(//Barra de navegação da App
               showSelectedLabels: false,
               showUnselectedLabels: false,
               backgroundColor: Color.fromARGB(255, 47, 59, 76),
@@ -78,7 +79,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     label: 'Calendar',
                     backgroundColor: Colors.white),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.favorite),
+                  //icon: Icon(Icons.favorite),
+                  icon: Image.asset('assets/images/icons/icon_favorite.png'),
                   label: 'Favorites',
                   backgroundColor: Colors.white,
                 ),
@@ -143,21 +145,13 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                   borderRadius: BorderRadius.all(Radius.circular(5)),
                   color: Color.fromARGB(255, 47, 59, 76),
                 ),
-                child:
-                    /*Row(
-                  //mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('ole'),*/
-                    TextField(
+                child: TextField(
                   textAlign: TextAlign.start,
                   decoration: InputDecoration(
                     fillColor: Colors.black,
                     hintText: 'Pesquisar',
                   ),
                 ),
-                //],
-                //),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 20),
@@ -225,11 +219,17 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                         fontSize: 26,
                       ),
                     ),
-                    Text(
-                      'ver todos',
-                      style: TextStyle(
-                          color: Color.fromRGBO(233, 168, 3, 1.0),
-                          fontSize: 12),
+                    TextButton(
+                      //onPressed: Router_.router.navigateTo(context, '/'),
+                      onPressed: (){
+                        Router_.router.navigateTo(context, '/allevents');
+                      },
+                      child: Text(
+                        'ver todos',
+                        style: TextStyle(
+                            color: Color.fromRGBO(233, 168, 3, 1.0),
+                            fontSize: 12),
+                      ),
                     ),
                   ],
                 ),
@@ -334,103 +334,6 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                       }
                     }),
               )
-              /*child: FutureBuilder(
-                      future: eventosemdestaque,
-                      builder: (BuildContext context, AsyncSnapshot snapshot) {
-                        switch (snapshot.connectionState) {
-                          case ConnectionState.none:
-                            return Center(
-                              child: Container(
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          case ConnectionState.done:
-                            print(
-                                "Connection State done! ${snapshot.data[0].event.title}");
-                            print("Numero de Eventos: ${numeroeventos.toString()}");
-                            return snapshot.data.isEmpty
-                                ? Center(child: Text('Empty'))
-                                : ListView.builder(
-                                    itemCount: numeroeventos,
-                                    itemBuilder: (BuildContext context, int index) {
-                                      return Card(
-                                          child: Column(
-                                              //mainAxisAlignment: MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                            Text(
-                                                "${snapshot.data[index].event.title.toString()}"),
-                                            Text(
-                                                "Descriç${snapshot.data[index].event.description.toString()}"),
-                                            Image.network(
-                                                "${snapshot.data[index].event.images[0].image.original.toString()}")
-                                          ]));
-                                    });
-                          case ConnectionState.waiting:
-                            return Center(
-                              child: Container(
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          case ConnectionState.active:
-                            return Text("Active");
-                        }
-                      }),*/
-              /*body: Column(
-          children: [
-            Text('teste')
-          ],
-          /*child: Container(
-              //height: screenHeight,
-              //width: screenWidth,
-              child: FutureBuilder(
-                  //future: eventosemdestaque,
-                  future: loadData(),
-                  // ignore: missing_return
-                  builder: (BuildContext context, AsyncSnapshot snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.none:
-                        return Center(
-                          child: Container(
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
-                      case ConnectionState.done:
-                        print(
-                            "Connection State done! ${snapshot.data[0].event.title}");
-                        print("Numero de Eventos: ${numeroeventos.toString()}");
-                        return snapshot.data.isEmpty
-                            ? Center(child: Text('Empty'))
-                            : ListView.builder(
-                                itemCount: numeroeventos,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return Card(
-                                      child: Column(
-                                          //mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                        Text(
-                                            "${snapshot.data[index].event.title.toString()}"),
-                                        Text(
-                                            "Descriç${snapshot.data[index].event.description.toString()}"),
-                                        Image.network(
-                                            "${snapshot.data[index].event.images[0].image.original.toString()}")
-                                      ]));
-                                });
-                      case ConnectionState.waiting:
-                        return Center(
-                          child: Container(
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
-                      case ConnectionState.active:
-                        return Text("Active");
-                    }
-                  })
-              ),*/
-        )*/
             ])));
   }
 }
