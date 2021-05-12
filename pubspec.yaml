@@ -30,6 +30,7 @@ dependencies:
   table_calendar: ^3.0.0 #calendario de eventos
   carousel_slider: ^3.0.0 #carousel eventos
   fluro: ^2.0.3 #fluro routing
+  shared_preferences: ^2.0.5 #shared preferences -> save users events favorites
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -57,8 +58,16 @@ flutter:
     - assets/images/icons/
     - assets/images/icons/icon_favorites.png
     - assets/images/icons/icon_home.png
+    - assets/images/icons/icon_home_colored.png
     - assets/images/icons/icon_calendar.png
+    - assets/images/icons/icon_calendar_colored.png
+    - assets/images/icons/icon_favoritemenu.png
+    - assets/images/icons/icon_favoritemenu_colored.png
     - assets/images/icons/icon_favorite.png
+    - assets/images/icons/icon_eventdetailscalendar.png
+    - assets/images/icons/icon_eventdetailswatch.png
+    - assets/images/icons/icon_eventdetailslocation.png
+    - assets/images/icons/icon_ellipse.png
 
 
 

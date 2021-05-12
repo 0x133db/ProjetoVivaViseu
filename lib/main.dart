@@ -9,7 +9,7 @@ import 'package:vivaviseu/eventdetails.dart';
 import 'package:vivaviseu/home.dart';
 import 'package:vivaviseu/login.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(App());
@@ -45,7 +45,7 @@ class _AppState extends State<App> {
   }
 }
 
-//Teste
+//Teste Firebase
 /*class Home extends StatelessWidget {
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
   @override

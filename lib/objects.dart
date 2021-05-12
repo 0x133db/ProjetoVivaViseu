@@ -128,6 +128,11 @@ class Event {
         "images": List<dynamic>.from(images.map((x) => x.toMap())),
         "links": List<dynamic>.from(links.map((x) => x)),
     };
+
+    //Criar mapa com id de evento selecionado para favorito
+    Map<String, dynamic> toMapFavEvents() =>{
+      "id": id,
+    };
 }
 
 class CategoryElement {

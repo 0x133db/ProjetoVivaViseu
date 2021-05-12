@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:vivaviseu/objects.dart';
 
 class EventDetailsContent extends StatelessWidget {
+  final Event event;
+
+  EventDetailsContent({this.event});
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     return Container(
-      color: Colors.grey,
+      color: Color.fromARGB(255, 34, 42, 54),
       child: SingleChildScrollView(
         child: Column(
           children: [
@@ -18,7 +23,7 @@ class EventDetailsContent extends StatelessWidget {
                 children: [
                   FlatButton(
                     onPressed: () {},
-                    child: Text('Categoria 1'),
+                    child: Text(event.categories[0].category.name),
                     color: Colors.orangeAccent,
                   ),
                   SizedBox(
@@ -54,7 +59,7 @@ class EventDetailsContent extends StatelessWidget {
                       ),
                       SizedBox(height: 10),
                       Text(
-                        'Descrição texto',
+                        event.description,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.normal,
