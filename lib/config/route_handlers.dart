@@ -8,19 +8,19 @@ import 'package:flutter/material.dart';
 
 //Ir para homescreen
 var rootHandler = Handler(
-    handlerFunc: (BuildContext context, Map<String, List<String>> params) {
+    handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
   return HomeScreen();
 });
 
 //Ir para ...
 var alleventsHandler = Handler(
-    handlerFunc: (BuildContext context, Map<String, List<String>> params) {
+    handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
   return AllEvents();
 });
 
 //Ir para Detalhes de Evento
 var eventdetailsHandler = Handler(
-    handlerFunc: (BuildContext context, Map<String, List<String>> params) {
-      String eventoid = params["eventoid"]?.first;
-  return EventDetails(eventid: int.parse(eventoid));
+    handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
+      String? eventoid = params["eventoid"]?.first;
+  return EventDetails(eventid: int.parse(eventoid!));
 });

@@ -1,4 +1,4 @@
-// @dart=2.9
+
 // To parse this JSON data, do
 //
 //     final welcome = welcomeFromMap(jsonString);
@@ -14,22 +14,22 @@ class Welcome {
         this.result,
     });
 
-    List<Result> result;
+    List<Result>? result;
 
     factory Welcome.fromMap(Map<String, dynamic> json) => Welcome(
         result: List<Result>.from(json["result"].map((x) => Result.fromMap(x))),
     );
 
     Map<String, dynamic> toMap() => {
-        "result": List<dynamic>.from(result.map((x) => x.toMap())),
+        "result": List<dynamic>.from(result!.map((x) => x.toMap())),
     };
 
-    List<Result> getListEvents(){
+    List<Result>? getListEvents(){
       return this.result;
     }
 
     int getnumeventosdestaque(){
-      return result.length;
+      return result!.length;
     }
 
 }
@@ -39,14 +39,14 @@ class Result {
         this.event,
     });
 
-    Event event;
+    Event? event;
 
     factory Result.fromMap(Map<String, dynamic> json) => Result(
         event: Event.fromMap(json["event"]),
     );
 
     Map<String, dynamic> toMap() => {
-        "event": event.toMap(),
+        "event": event!.toMap(),
     };
 }
 
@@ -71,23 +71,23 @@ class Event {
         this.links,
     });
 
-    int id;
-    List<CategoryElement> categories;
-    Organizer organizer;
-    String title;
-    String description;
-    String location;
-    String longitude;
-    String latitude;
-    bool highlighted;
-    String price;
-    bool hasRecurringDates;
-    DateTime startDate;
-    DateTime endDate;
-    String dateDetails;
-    List<DateElement> dates;
-    List<ImageElement> images;
-    List<dynamic> links;
+    int? id;
+    List<CategoryElement>? categories;
+    Organizer? organizer;
+    String? title;
+    String? description;
+    String? location;
+    String? longitude;
+    String? latitude;
+    bool? highlighted;
+    String? price;
+    bool? hasRecurringDates;
+    DateTime? startDate;
+    DateTime? endDate;
+    String? dateDetails;
+    List<DateElement>? dates;
+    List<ImageElement>? images;
+    List<dynamic>? links;
 
     factory Event.fromMap(Map<String, dynamic> json) => Event(
         id: json["id"],
@@ -111,8 +111,8 @@ class Event {
 
     Map<String, dynamic> toMap() => {
         "id": id,
-        "categories": List<dynamic>.from(categories.map((x) => x.toMap())),
-        "organizer": organizer.toMap(),
+        "categories": List<dynamic>.from(categories!.map((x) => x.toMap())),
+        "organizer": organizer!.toMap(),
         "title": title,
         "description": description,
         "location": location,
@@ -121,12 +121,12 @@ class Event {
         "highlighted": highlighted,
         "price": price,
         "has_recurring_dates": hasRecurringDates,
-        "start_date": "${startDate.year.toString().padLeft(4, '0')}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}",
-        "end_date": "${endDate.year.toString().padLeft(4, '0')}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}",
+        "start_date": "${startDate!.year.toString().padLeft(4, '0')}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}",
+        "end_date": "${endDate!.year.toString().padLeft(4, '0')}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}",
         "date_details": dateDetails == null ? null : dateDetails,
-        "dates": List<dynamic>.from(dates.map((x) => x.toMap())),
-        "images": List<dynamic>.from(images.map((x) => x.toMap())),
-        "links": List<dynamic>.from(links.map((x) => x)),
+        "dates": List<dynamic>.from(dates!.map((x) => x.toMap())),
+        "images": List<dynamic>.from(images!.map((x) => x.toMap())),
+        "links": List<dynamic>.from(links!.map((x) => x)),
     };
 
     //Criar mapa com id de evento selecionado para favorito
@@ -140,14 +140,14 @@ class CategoryElement {
         this.category,
     });
 
-    CategoryCategory category;
+    CategoryCategory? category;
 
     factory CategoryElement.fromMap(Map<String, dynamic> json) => CategoryElement(
         category: CategoryCategory.fromMap(json["category"]),
     );
 
     Map<String, dynamic> toMap() => {
-        "category": category.toMap(),
+        "category": category!.toMap(),
     };
 }
 
@@ -156,7 +156,7 @@ class CategoryCategory {
         this.name,
     });
 
-    String name;
+    String? name;
 
     factory CategoryCategory.fromMap(Map<String, dynamic> json) => CategoryCategory(
         name: json["name"],
@@ -172,14 +172,14 @@ class DateElement {
         this.date,
     });
 
-    DateDate date;
+    DateDate? date;
 
     factory DateElement.fromMap(Map<String, dynamic> json) => DateElement(
         date: DateDate.fromMap(json["date"]),
     );
 
     Map<String, dynamic> toMap() => {
-        "date": date.toMap(),
+        "date": date!.toMap(),
     };
 }
 
@@ -190,9 +190,9 @@ class DateDate {
         this.timeEnd,
     });
 
-    DateTime eventDate;
-    DateTime timeStart;
-    DateTime timeEnd;
+    DateTime? eventDate;
+    DateTime? timeStart;
+    DateTime? timeEnd;
 
     factory DateDate.fromMap(Map<String, dynamic> json) => DateDate(
         eventDate: DateTime.parse(json["event_date"]),
@@ -201,9 +201,9 @@ class DateDate {
     );
 
     Map<String, dynamic> toMap() => {
-        "event_date": "${eventDate.year.toString().padLeft(4, '0')}-${eventDate.month.toString().padLeft(2, '0')}-${eventDate.day.toString().padLeft(2, '0')}",
-        "time_start": timeStart.toIso8601String(),
-        "time_end": timeEnd == null ? null : timeEnd.toIso8601String(),
+        "event_date": "${eventDate!.year.toString().padLeft(4, '0')}-${eventDate!.month.toString().padLeft(2, '0')}-${eventDate!.day.toString().padLeft(2, '0')}",
+        "time_start": timeStart!.toIso8601String(),
+        "time_end": timeEnd == null ? null : timeEnd!.toIso8601String(),
     };
 }
 
@@ -212,14 +212,14 @@ class ImageElement {
         this.image,
     });
 
-    ImageImage image;
+    ImageImage? image;
 
     factory ImageElement.fromMap(Map<String, dynamic> json) => ImageElement(
         image: ImageImage.fromMap(json["image"]),
     );
 
     Map<String, dynamic> toMap() => {
-        "image": image.toMap(),
+        "image": image!.toMap(),
     };
 }
 
@@ -230,9 +230,9 @@ class ImageImage {
         this.fullHd,
     });
 
-    String original;
-    String thumbnail;
-    String fullHd;
+    String? original;
+    String? thumbnail;
+    String? fullHd;
 
     factory ImageImage.fromMap(Map<String, dynamic> json) => ImageImage(
         original: json["original"],
@@ -257,12 +257,12 @@ class Organizer {
         this.image,
     });
 
-    String name;
-    String linkWebsite;
-    String linkFacebook;
-    String linkInstagram;
-    String linkTwitter;
-    String image;
+    String? name;
+    String? linkWebsite;
+    String? linkFacebook;
+    String? linkInstagram;
+    String? linkTwitter;
+    String? image;
 
     factory Organizer.fromMap(Map<String, dynamic> json) => Organizer(
         name: json["name"],

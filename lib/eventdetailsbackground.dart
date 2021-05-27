@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class EventDetailsBackground extends StatelessWidget {
   EventDetailsBackground({this.image});
 
-  final String image;
+  final String? image;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class EventDetailsBackground extends StatelessWidget {
               //width: screenWidth,
               //height: screenHeight * 0.5 ,
               height: 400,
-              fit: BoxFit.fill,
+              fit: BoxFit.fitWidth,
               //color: Color(0x99000000),
               //colorBlendMode: BlendMode.dstOut,
               ),

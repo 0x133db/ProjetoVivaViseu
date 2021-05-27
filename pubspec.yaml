@@ -18,23 +18,26 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core: "^1.0.3"
-  firebase_auth: ^1.0.3
+  firebase_core: ^1.2.0
+  firebase_auth: ^1.2.0
   material_floating_search_bar: ^0.3.4 # search bar 
-  http: ^0.13.1
+  http: ^0.13.3
   table_calendar: ^3.0.0 #calendario de eventos
-  carousel_slider: ^3.0.0 #carousel eventos
+  carousel_slider: ^4.0.0-nullsafety.0 #carousel eventos
   fluro: ^2.0.3 #fluro routing
   shared_preferences: ^2.0.5 #shared preferences -> save users events favorites
+  animated_search_bar: ^2.0.0 #searchbar
+  # intl: ^0.17.0 #date/time formatter library 
+  date_format: ^2.0.2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
+  cupertino_icons: ^1.0.3
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +71,10 @@ flutter:
     - assets/images/icons/icon_eventdetailswatch.png
     - assets/images/icons/icon_eventdetailslocation.png
     - assets/images/icons/icon_ellipse.png
+    - assets/images/icons/icon_searchicon.png
+    - assets/images/icons/image_line.png
+    - assets/images/icons/leftchevron.png
+    - assets/images/icons/rightchevron.png
 
 
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vivaviseu/objects.dart';
 
 class EventDetailsContent extends StatelessWidget {
-  final Event event;
+  final Event? event;
 
   EventDetailsContent({this.event});
 
@@ -23,7 +23,7 @@ class EventDetailsContent extends StatelessWidget {
                 children: [
                   FlatButton(
                     onPressed: () {},
-                    child: Text(event.categories[0].category.name),
+                    child: Text(event!.categories![0].category!.name!),
                     color: Colors.orangeAccent,
                   ),
                   SizedBox(
@@ -59,7 +59,7 @@ class EventDetailsContent extends StatelessWidget {
                       ),
                       SizedBox(height: 10),
                       Text(
-                        event.description,
+                        event!.description!,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.normal,

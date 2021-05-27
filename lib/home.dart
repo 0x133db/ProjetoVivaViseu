@@ -1,6 +1,8 @@
+import 'dart:collection';
 import 'dart:convert';
-//import 'dart:html';
+//import 'dart:ffi';
 
+import 'package:animated_search_bar/animated_search_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +20,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fluro/fluro.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:vivaviseu/searching.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -105,27 +107,50 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class HighlightedEvents extends StatefulWidget {
-  HighlightedEvents({Key key}) : super(key: key);
+  HighlightedEvents({Key? key}) : super(key: key);
 
   @override
   HighlightedEventsState createState() => HighlightedEventsState();
 }
 
-class HighlightedEventsState extends State<HighlightedEvents> {
-  List<Result> eventosemdestaque; //lista de eventos em destaque
-  int numeroeventos; //numero de eventos em destaque
+class CategoriaWidget extends StatelessWidget {
+  CategoriaWidget({Key? key, this.categorianome}) : super(key: key);
+  String? categorianome;
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return ClipRRect(
+      borderRadius: BorderRadius.all(Radius.circular(1000)),
+      child: FlatButton(
+        onPressed: () {},
+        child: Text('$categorianome'),
+        color: Color.fromRGBO(233, 168, 3, 1.0),
+      ),
+    );
+  }
+}
 
-  SharedPreferences userpreferences; //não está a ser utilizado no momento
-  var eventosfavoritos = new Map(); //não está a ser utilizado no momento
+class HighlightedEventsState extends State<HighlightedEvents> {
+  List<Result>? eventosemdestaque; //lista de eventos em destaque
+  late int numeroeventos; //numero de eventos em destaque
+  int? numerocategorias; //numero de categorias
+
+  late SharedPreferences userpreferences;
+  List<String>? eventosFavoritos = [];
+
+  bool seeall = false;
+  bool searching = false;
+  bool teste = true;
+  String searchtext = '';
 
   @override
   void initState() {
     print('[---------- Página Eventos em Destaque ----------]');
-    //initSharedPreferences();
     super.initState();
+    initSharedPreferences();
   }
 
-  Future<List<Result>> loadData() async {
+  Future<List<Result>?> loadData() async {
     Uri eventosapiUrl =
         Uri.parse("http://vivaviseu.projectbox.pt/api/v1/highlighted_events");
     print('Link utilizado para Eventos em Destaque: $eventosapiUrl');
@@ -133,370 +158,321 @@ class HighlightedEventsState extends State<HighlightedEvents> {
     if (resposta.statusCode == 200) {
       Map<String, dynamic> body = json.decode(resposta.body);
       Welcome Data = Welcome.fromMap(body);
-      print("Número de Eventos em Destaque: ${Data.result.length}");
+      print("Número de Eventos em Destaque: ${Data.result!.length}");
       int i;
-      for (i = 0; i < Data.result.length; i++) {
+      for (i = 0; i < Data.result!.length; i++) {
         print(
-            'Evento: [ID:${Data.result[i].event.id}] , Título: ${Data.result[i].event.title} , Organizador: ${Data.result[i].event.organizer.name}');
+            'Evento: [ID:${Data.result![i].event!.id}] , Título: ${Data.result![i].event!.title} , Organizador: ${Data.result![i].event!.organizer!.name}');
       }
-      numeroeventos = Data.getListEvents().length;
+      numeroeventos = Data.getListEvents()!.length;
       eventosemdestaque = Data.result;
       return eventosemdestaque;
     }
   }
 
-//Users Favorite Events Data Functions
-//
-/*
-  void initSharedPreferences() async {
-    userpreferences = await SharedPreferences.getInstance();
-    loaduserdata();
-  }
-  void addeventtofavorites(Event evento) {
-    int eventoid = evento.id; 
-    if (eventosfavoritos.contains(eventoid)) {
-      print('Event already in users favorites');
-      return;
-    } else {
-      eventosfavoritos.add(eventoid);
-      saveuserdata();
-      print('Event id:[${eventoid}] added to users favorites');
+  Future<List<CategoryCategory>?> loadCategories() async {
+    Uri categoriesapiUrl =
+        Uri.parse("http://vivaviseu.projectbox.pt/api/v1/categories");
+    print('Link utilizado para Categorias: $categoriesapiUrl');
+    var resposta = await http.get(categoriesapiUrl);
+    if (resposta.statusCode == 200) {
+      Map<String, dynamic> body = json.decode(resposta.body);
+      List<CategoryCategory> listaCategorias = [];
+      numerocategorias = body['result'].length;
+      for (int i = 0; i < body['result'].length; i++) {
+        CategoryCategory category =
+            CategoryCategory.fromMap(body['result'][i]['category']);
+        print('${category.name}');
+        listaCategorias.add(category);
+      }
+      return listaCategorias;
     }
   }
 
-  void saveuserdata() {
-    print('Saving ${eventosfavoritos.last} to Users Data...');
-    List<String> upList = eventosfavoritos.map((item) =>json.encode(item.));
-    userpreferences.setStringList('favoritos', );
-    print('Done!');
+  void search(String content) async {
+    Uri searchapiUrl = Uri.parse(
+        "http://vivaviseu.projectbox.pt/api/v1/events?page=1&category=1&organizer=1&query=$content");
+    print('Link utilizado para Eventos em Destaque: $searchapiUrl');
+    var resposta = await http.get(searchapiUrl);
+    if (resposta.statusCode == 200) {
+      Map<String, dynamic> body = json.decode(resposta.body);
+      Welcome Data = Welcome.fromMap(body);
+      print("Número de resultados de pesquisa: ${Data.result!.length}");
+      for (int i = 0; i < Data.result!.length; i++) {
+        print(
+            '#Evento: [ID:${Data.result![i].event!.id}] , Título: ${Data.result![i].event!.title} , Organizador: ${Data.result![i].event!.organizer!.name}');
+      }
+    }
   }
 
-  void loaduserdata() {
-    print('Loading Users Data...');
-    upList = List<int>;
-    eventosfavoritos = {'favoritos':List<int>};
-    print('Users Data Loaded!');
-    }*/
+//Users Favorite Events Data Functions
+//
+
+  void initSharedPreferences() async {
+    //SharedPreferences.setMockInitialValues(<String, dynamic>{'favoritos':[]});
+    print('########### Loading Users Data... ###########');
+    loadUserData();
+    print('########### Users Data Loaded... $eventosFavoritos ###########');
+  }
+  
+  loadUserData()async{
+    userpreferences = await SharedPreferences.getInstance();
+    if (userpreferences.getStringList('favoritos') == null) {
+      return;
+    }
+    eventosFavoritos = userpreferences.getStringList('favoritos');    
+    print('Load User Data : $eventosFavoritos');
+  }
+
+  saveUserData(){
+    userpreferences.setStringList('favoritos', eventosFavoritos!);      
+    loadUserData();
+    print('Saved User Data : $eventosFavoritos');
+  }
+
+  addEventUserData(int? id){
+    print('Add Event User Data : $eventosFavoritos');
+    if(eventosFavoritos!.contains(id.toString())){
+      print('After add Event User Data : $eventosFavoritos');
+      removeEventUserData(id);
+      return;
+    }
+    eventosFavoritos!.add(id.toString());
+    saveUserData();
+    print('After add Event User Data : $eventosFavoritos');
+  }
+
+  removeEventUserData(int? id){
+    print('Remove Event User Data : $eventosFavoritos');
+    eventosFavoritos!.remove(id.toString());
+    saveUserData();
+    loadUserData();
+    print('After Remove Event User Data : $eventosFavoritos');
+
+  }
+
+  Widget _getIconFavorite(int? id) {
+    loadUserData();
+    String string = id.toString();
+    if(eventosFavoritos != null && eventosFavoritos!.contains(string)){
+      return Image.asset(
+        'assets/images/icons/icon_favorites.png',
+        scale: 2,);
+    }else{
+      return Image.asset(
+        'assets/images/icons/icon_favorite.png',
+        scale: 1.5,);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Color.fromARGB(255, 34, 42, 54),
-        body: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 50, 0, 0),
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(35, 10, 35, 0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    color: Color.fromARGB(255, 47, 59, 76),
-                  ),
-                  child: TextField(
+    if (seeall == true) {
+      return AllEvents();
+    } else if (searching == true) {
+      return SearchWidget();
+    } else {
+      return Scaffold(
+          backgroundColor: Color.fromARGB(255, 34, 42, 54),
+          body: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 50, 0, 0),
+              child:
+                  Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(35, 10, 35, 0),
+                  child: Container(
+                    height: 50,
+                    width: 400,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                      color: Color.fromARGB(255, 47, 59, 76),
+                    ),
+                    child:
+                        /*TextField(
                     textAlign: TextAlign.start,
                     decoration: InputDecoration(
                       fillColor: Colors.black,
                       hintText: 'Pesquisar',
                     ),
+                  ),*/
+                        AnimatedSearchBar(
+                      label: "Pesquisar",
+                      labelStyle: TextStyle(
+                        color: Color.fromRGBO(152, 176, 210, 1),
+                      ),
+                      searchStyle: TextStyle(
+                        color: Color.fromRGBO(152, 176, 210, 1),
+                      ),
+                      searchDecoration: InputDecoration(
+                        icon: Image.asset(
+                            'assets/images/icons/icon_searchicon.png'),
+                        //border: InputBorder.none
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          searching = !searching;
+                          searchtext = value;
+                          search(searchtext);
+                        });
+                      },
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(35, 20, 35, 0),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
+                //Barra de Categorias
+                Padding(
+                    padding: const EdgeInsets.fromLTRB(35, 20, 35, 0),
+                    child: SingleChildScrollView(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: 30,
+                              child: FutureBuilder(
+                                  future: loadCategories(),
+                                  builder:
+                                      // ignore: missing_return
+                                      (BuildContext context,
+                                          AsyncSnapshot snapshot) {
+                                    switch (snapshot.connectionState) {
+                                      case ConnectionState.none:
+                                        return Container(
+                                          child: Center(
+                                              child:
+                                                  CircularProgressIndicator()),
+                                        );
+                                      case ConnectionState.waiting:
+                                        return Container(
+                                          child: Center(
+                                              child:
+                                                  CircularProgressIndicator()),
+                                        );
+                                      case ConnectionState.done:
+                                        return ListView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: numerocategorias,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              var categoryname =
+                                                  snapshot.data[index].name;
+                                              return Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 5, right: 5),
+                                                child: Container(
+                                                  width: 110,
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                100)),
+                                                    child: TextButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          teste = !teste;
+                                                        });
+                                                      },
+                                                      child: Text(
+                                                        '$categoryname',
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal),
+                                                      ),
+                                                      style: ButtonStyle(
+                                                          backgroundColor: teste == true
+                                                              ? MaterialStateProperty.all<Color>(
+                                                                  Color.fromRGBO(
+                                                                      233,
+                                                                      168,
+                                                                      3,
+                                                                      1.0))
+                                                              : MaterialStateProperty.all<Color>(
+                                                                  Color.fromARGB(
+                                                                      255,
+                                                                      47,
+                                                                      59,
+                                                                      76)),
+                                                          shape: MaterialStateProperty.all<
+                                                                  RoundedRectangleBorder>(
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20.0),
+                                                          ))),
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            });
+                                      case ConnectionState.active:
+                                        return Container(
+                                          child: Center(
+                                              child:
+                                                  CircularProgressIndicator()),
+                                        );
+                                    }
+                                  }),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(35, 20, 35, 0),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(1000)),
-                        child: FlatButton(
-                          onPressed: () {},
-                          child: Text('Categoria 1'),
-                          color: Color.fromRGBO(233, 168, 3, 1.0),
+                      Text(
+                        'Destaques',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 26,
                         ),
                       ),
-                      SizedBox(
-                        width: 20,
+                      GestureDetector(
+                        onTap: () {
+                          //Router_.router.navigateTo(context, '/allevents');
+                          setState(() {
+                            seeall = !seeall;
+                          });
+                        },
+                        child: Text(
+                          'ver todos',
+                          style: TextStyle(
+                              color: Color.fromRGBO(233, 168, 3, 1.0),
+                              fontWeight: FontWeight.w300,
+                              fontSize: 12),
+                        ),
                       ),
-                      FlatButton(
-                        onPressed: () {},
-                        child: Text('Categoria 2'),
-                        color: Color.fromRGBO(233, 168, 3, 1.0),
-                      ),
-                      SizedBox(
-                        width: 20,
-                      ),
-                      FlatButton(
-                        onPressed: () {},
-                        child: Text('Categoria 3'),
-                        color: Color.fromRGBO(233, 168, 3, 1.0),
-                      ),
-                      SizedBox(
-                        width: 20,
-                      ),
-                      FlatButton(
-                        onPressed: () {},
-                        child: Text('Categoria 4'),
-                        color: Color.fromRGBO(233, 168, 3, 1.0),
-                      ),
-                      SizedBox(
-                        width: 20,
-                      ),
-                      Scrollbar(
-                          child: FlatButton(
-                        onPressed: () {},
-                        child: Text('Categoria 4'),
-                        color: Color.fromRGBO(233, 168, 3, 1.0),
-                      ))
                     ],
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(35, 20, 35, 0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Destaques',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 26,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Router_.router.navigateTo(context, '/allevents');
-                      },
-                      child: Text(
-                        'ver todos',
-                        style: TextStyle(
-                            color: Color.fromRGBO(233, 168, 3, 1.0),
-                            fontWeight: FontWeight.w300,
-                            fontSize: 12),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 30),
-                child: FutureBuilder(
-                    future: loadData(),
-                    // ignore: missing_return
-                    builder: (BuildContext context, AsyncSnapshot snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.none:
-                          return Container(
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                        case ConnectionState.done:
-                          return CarouselSlider.builder(
-                            itemCount: numeroeventos,
-                            itemBuilder:
-                                (BuildContext context, int index, int why) {
-                              var eventid = snapshot.data[index].event.id;
-                              var title = snapshot.data[index].event.title;
-                              var location =
-                                  snapshot.data[index].event.location;
-                              var startdate =
-                                  snapshot.data[index].event.startDate;
-                              var formattedDate =
-                                  "${startdate.day}-${startdate.month}-${startdate.year}";
-                              var timeevent = snapshot
-                                  .data[index].event.dates[0].date.timeStart;
-                              var time =
-                                  "${timeevent.hour}h${timeevent.minute}";
-                              var image =
-                                  'http://${snapshot.data[index].event.images[0].image.original}';
-                              var category = snapshot.data[index].event
-                                  .categories[0].category.name;
-                              return GestureDetector(
-                                onTap: () {
-                                  Router_.router.navigateTo(context,
-                                      '/eventdetails?eventoid=$eventid');
-                                },
-                                child: Container(
-                                  height: 450,
-                                  width: 400,
-                                  child: SingleChildScrollView(
-                                    child: Card(
-                                      elevation: 5,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(15))),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(12)),
-                                          //color: Colors.black,
-                                          image: DecorationImage(
-                                              image: NetworkImage(
-                                                image,
-                                              ),
-                                              fit: BoxFit.cover),
-                                        ),
-                                        child: Column(
-                                          //coluna de widgets sobre a imagem
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                Stack(
-                                                    alignment: Alignment.center,
-                                                    children: [
-                                                      Image.asset(
-                                                        'assets/images/icons/icon_ellipse.png',
-                                                        scale: 1.2,
-                                                      ),
-                                                      IconButton(
-                                                        icon: Image.asset(
-                                                          'assets/images/icons/icon_favorite.png',
-                                                          scale: 1.5,
-                                                        ),
-                                                        onPressed: () {
-                                                          setState(() {});
-                                                        },
-                                                      ),
-                                                    ]),
-                                              ],
-                                            ),
-                                            SizedBox(height: 300),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      15, 10, 15, 10),
-                                              child: Container(
-                                                width: 200,
-                                                height: 80,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    //Desenho de Categoria
-                                                    Container(
-                                                      width: 85,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                          color: Color.fromRGBO(
-                                                              233, 168, 3, 1),
-                                                          borderRadius:
-                                                              BorderRadius.all(
-                                                                  Radius
-                                                                      .circular(
-                                                                          10))),
-                                                      child: Center(
-                                                        child: Text(
-                                                          category,
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                              fontSize: 11),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      height: 6,
-                                                    ),
-                                                    Text(
-                                                      title,
-                                                      style: TextStyle(
-                                                          color: Colors.white),
-                                                    ),
-                                                    SizedBox(
-                                                      height: 5,
-                                                    ),
-                                                    Row(
-                                                      //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      children: [
-                                                        Image.asset(
-                                                          'assets/images/icons/icon_eventdetailscalendar.png',
-                                                        ),
-                                                        SizedBox(
-                                                          width: 5,
-                                                        ),
-                                                        Text(
-                                                          formattedDate,
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 12,
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          width: 10,
-                                                        ),
-                                                        Image.asset(
-                                                          'assets/images/icons/icon_eventdetailswatch.png',
-                                                        ),
-                                                        SizedBox(
-                                                          width: 5,
-                                                        ),
-                                                        Text(
-                                                          time,
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 12,
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                    SizedBox(
-                                                      height: 2,
-                                                    ),
-                                                    Row(
-                                                      children: [
-                                                        Image.asset(
-                                                          'assets/images/icons/icon_eventdetailslocation.png',
-                                                        ),
-                                                        SizedBox(
-                                                          width: 5,
-                                                        ),
-                                                        Text(
-                                                          location,
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 12,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 30),
+                  child: Container(
+                    height: 470,
+                    child: FutureBuilder(
+                        future: loadData(),
+                        // ignore: missing_return
+                        builder:
+                            // ignore: missing_return
+                            (BuildContext context, AsyncSnapshot snapshot) {
+                          switch (snapshot.connectionState) {
+                            case ConnectionState.none:
+                              return Container(
+                                child:
+                                    Center(child: CircularProgressIndicator()),
                               );
-                            },
-                            options: CarouselOptions(
-                              height: 450,
-                              aspectRatio: 1,
-                              enlargeCenterPage: true,
-                              enlargeStrategy: CenterPageEnlargeStrategy.scale,
-                              autoPlay: true,
-                              autoPlayCurve: Curves.easeInOut,
-                              enableInfiniteScroll: false,
-                              disableCenter: true,
-                            ),
-
-                            /*ListView.builder(
-                                physics: ClampingScrollPhysics(),
+                            case ConnectionState.done:
+                              return CarouselSlider.builder(
                                 itemCount: numeroeventos,
-                                itemBuilder: (BuildContext context, int index) {
+                                itemBuilder:
+                                    (BuildContext context, int index, int why) {
+                                  // ignore: unused_local_variable
+                                  var event = snapshot.data[index].event;
                                   var eventid = snapshot.data[index].event.id;
                                   var title = snapshot.data[index].event.title;
                                   var location =
@@ -505,31 +481,263 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                                       snapshot.data[index].event.startDate;
                                   var formattedDate =
                                       "${startdate.day}-${startdate.month}-${startdate.year}";
+                                  var timeevent = snapshot.data[index].event
+                                      .dates[0].date.timeStart;
+                                  var time =
+                                      "${timeevent.hour}h${timeevent.minute}";
                                   var image =
-                                      'http://${snapshot.data[index].event.images[0].image.thumbnail}';
+                                      'http://${snapshot.data[index].event.images[0].image.original}';
+                                  var category = snapshot.data[index].event
+                                      .categories[0].category.name;
                                   return GestureDetector(
-                                    onTap: (){Router_.router.navigateTo(context, '/eventdetails?eventoid=$eventid');},
-                                    child: EventContainerWidget(image: image, title: title, location: location, id: eventid,));
-                                }),*/
-                          );
-                        case ConnectionState.waiting:
-                          return Container(
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                      }
-                    }),
-              )
-            ])));
+                                    onTap: () {
+                                      Router_.router.navigateTo(context,
+                                          '/eventdetails?eventoid=$eventid');
+                                    },
+                                    child: Container(
+                                      height: 900,
+                                      width: 400,
+                                      child: SingleChildScrollView(
+                                        child: Card(
+                                          elevation: 5,
+                                          shadowColor: Colors.black,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(15))),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(12)),
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  Colors.red,
+                                                  Colors.black,
+                                                ],
+                                                begin: Alignment.topCenter,
+                                                end: Alignment.bottomCenter,
+                                              ),
+                                              //color: Colors.black,
+                                              image: DecorationImage(
+                                                  image: NetworkImage(
+                                                    image,
+                                                  ),
+                                                  fit: BoxFit.cover),
+                                            ),
+                                            child: Column(
+                                              //coluna de widgets sobre a imagem
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: [
+                                                    Stack(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        children: [
+                                                          Image.asset(
+                                                            'assets/images/icons/icon_ellipse.png',
+                                                            scale: 1.2,
+                                                          ),
+                                                          IconButton(
+                                                            icon: /*Image.asset(
+                                                              'assets/images/icons/icon_favorites.png',
+                                                              scale: 2,
+                                                            ),*/
+                                                            _getIconFavorite(eventid),
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                //addeventtofavorites(event);
+                                                                addEventUserData(eventid);
+                                                              });
+                                                            },
+                                                          ),
+                                                        ]),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 300),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          15, 10, 15, 10),
+                                                  child: Container(
+                                                    width: 200,
+                                                    height: 80,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        //Desenho de Categoria
+                                                        Container(
+                                                          width: 85,
+                                                          height: 20,
+                                                          decoration: BoxDecoration(
+                                                              color: Color
+                                                                  .fromRGBO(
+                                                                      233,
+                                                                      168,
+                                                                      3,
+                                                                      1),
+                                                              borderRadius: BorderRadius
+                                                                  .all(Radius
+                                                                      .circular(
+                                                                          10))),
+                                                          child: Center(
+                                                            child: Text(
+                                                              category,
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w400,
+                                                                  fontSize: 11),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 6,
+                                                        ),
+                                                        Text(
+                                                          title,
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.white),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 5,
+                                                        ),
+                                                        Row(
+                                                          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                          children: [
+                                                            Image.asset(
+                                                              'assets/images/icons/icon_eventdetailscalendar.png',
+                                                            ),
+                                                            SizedBox(
+                                                              width: 5,
+                                                            ),
+                                                            Text(
+                                                              formattedDate,
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 12,
+                                                              ),
+                                                            ),
+                                                            SizedBox(
+                                                              width: 10,
+                                                            ),
+                                                            Image.asset(
+                                                              'assets/images/icons/icon_eventdetailswatch.png',
+                                                            ),
+                                                            SizedBox(
+                                                              width: 5,
+                                                            ),
+                                                            Text(
+                                                              time,
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 12,
+                                                              ),
+                                                            )
+                                                          ],
+                                                        ),
+                                                        SizedBox(
+                                                          height: 2,
+                                                        ),
+                                                        Row(
+                                                          children: [
+                                                            Image.asset(
+                                                              'assets/images/icons/icon_eventdetailslocation.png',
+                                                            ),
+                                                            SizedBox(
+                                                              width: 5,
+                                                            ),
+                                                            Text(
+                                                              location,
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 12,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                options: CarouselOptions(
+                                  height: 450,
+                                  aspectRatio: 1,
+                                  enlargeCenterPage: true,
+                                  enlargeStrategy:
+                                      CenterPageEnlargeStrategy.scale,
+                                  autoPlay: true,
+                                  autoPlayCurve: Curves.easeInOut,
+                                  enableInfiniteScroll: false,
+                                  disableCenter: true,
+                                ),
+
+                                /*ListView.builder(
+                                  physics: ClampingScrollPhysics(),
+                                  itemCount: numeroeventos,
+                                  itemBuilder: (BuildContext context, int index) {
+                                    var eventid = snapshot.data[index].event.id;
+                                    var title = snapshot.data[index].event.title;
+                                    var location =
+                                        snapshot.data[index].event.location;
+                                    var startdate =
+                                        snapshot.data[index].event.startDate;
+                                    var formattedDate =
+                                        "${startdate.day}-${startdate.month}-${startdate.year}";
+                                    var image =
+                                        'http://${snapshot.data[index].event.images[0].image.thumbnail}';
+                                    return GestureDetector(
+                                      onTap: (){Router_.router.navigateTo(context, '/eventdetails?eventoid=$eventid');},
+                                      child: EventContainerWidget(image: image, title: title, location: location, id: eventid,));
+                                  }),*/
+                              );
+                            case ConnectionState.waiting:
+                              return Container(
+                                height: 400,
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                              );
+                            case ConnectionState.active:
+                              return Container(
+                                height: 400,
+                                child: Center(
+                                  child: Text('Active'),
+                                ),
+                              );
+                          }
+                        }),
+                  ),
+                )
+              ])));
+    }
   }
 }
 
 class EventContainerWidget extends StatelessWidget {
   const EventContainerWidget({
-    Key key,
-    @required this.image,
-    @required this.title,
-    @required this.location,
-    @required this.id,
+    Key? key,
+    required this.image,
+    required this.title,
+    required this.location,
+    required this.id,
   }) : super(key: key);
 
   final String image;
@@ -627,6 +835,7 @@ class EventContainerWidget extends StatelessWidget {
   }
 }
 
+/*
 class Configuracoes extends StatefulWidget {
   @override
   _ConfiguracoesState createState() => _ConfiguracoesState();
@@ -699,3 +908,4 @@ class _ConfiguracoesState extends State<Configuracoes> {
     );
   }
 }
+*/

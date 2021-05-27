@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+/*import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vivaviseu/home.dart';
@@ -9,7 +9,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String _email, _password;
+  String? _email, _password;
   final auth = FirebaseAuth.instance;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -102,13 +102,13 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  String validateEmail(String value) {
+  String? validateEmail(String value) {
     Pattern pattern =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regex = new RegExp(pattern);
+    RegExp regex = new RegExp(pattern as String);
     if (!regex.hasMatch(value))
       return 'Enter Valid Email';
     else
       return null;
   }
-}
+}*/

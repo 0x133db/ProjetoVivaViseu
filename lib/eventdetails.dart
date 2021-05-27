@@ -11,25 +11,25 @@ import 'package:http/http.dart' as http;
 class EventDetails extends StatefulWidget {
   EventDetails({this.eventid});
 
-  final int eventid;
+  final int? eventid;
 
   @override
   _EventDetailsState createState() => _EventDetailsState();
 }
 
 class _EventDetailsState extends State<EventDetails> {
-  Event _event;
+  Event? _event;
 
   @override
   void initState() {
     print(
         '[---------- Página Detalhes de Evento ${widget.eventid} ----------]');
-    int id = widget.eventid;
+    int? id = widget.eventid;
     //loadEventDetails(id);
     super.initState();
   }
 
-  Future<Event> loadEventDetails(int id) async {
+  Future<Event?> loadEventDetails(int? id) async {
     Uri eventoapiUrl =
         Uri.parse("http://vivaviseu.projectbox.pt/api/v1/events/$id");
     print('Link utilizado: $eventoapiUrl');
@@ -39,8 +39,8 @@ class _EventDetailsState extends State<EventDetails> {
       Result _result = Result.fromMap(bodyy);
       int i;
       print(
-          '[ID]: ${_result.event.id} , Título: ${_result.event.title} , Descrição: ${_result.event.description}');
-      Event evento = _result.event;
+          '[ID]: ${_result.event!.id} , Título: ${_result.event!.title} , Descrição: ${_result.event!.description}');
+      Event? evento = _result.event;
       return evento;
     }
   }

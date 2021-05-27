@@ -2,17 +2,18 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vivaviseu/config/router.dart';
 import 'package:vivaviseu/config/routes.dart';
 import 'package:vivaviseu/eventdetails.dart';
 import 'package:vivaviseu/home.dart';
 import 'package:vivaviseu/login.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(App());
+  initializeDateFormatting().then((_) => runApp(App()));
 }
 
 class App extends StatefulWidget {
@@ -25,7 +26,7 @@ class _AppState extends State<App> {
   _AppState(){
       final FluroRouter router = FluroRouter();
       Routes.configureRoutes(router);
-      Router_.router = router;
+      Router_.router = router; 
   }
 
   @override
