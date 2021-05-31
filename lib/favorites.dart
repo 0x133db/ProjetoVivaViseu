@@ -3,12 +3,14 @@ import 'dart:ui';
 import 'dart:async';
 
 import 'package:date_format/date_format.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vivaviseu/config/router.dart';
 import 'package:vivaviseu/objects.dart';
 import 'package:http/http.dart' as http;
+import 'package:vivaviseu/utils/utils.dart';
 
 class Favorites extends StatefulWidget {
   @override
@@ -21,35 +23,15 @@ class _FavoritesState extends State<Favorites> {
   List<Event?> eventosFavLista = [];
   String url = '';
   int numerofavoritos = 0;
+  ///////
+  late UserPreferences up;
+  ///
+
 
   @override
   void initState() {
     print('[---------- Página Favoritos ----------]');
-
     super.initState();
-    initSharedPreferences();
-    //loadEventFromUserData();
-  }
-
-  void initSharedPreferences() async {
-    userpreferences = await SharedPreferences.getInstance();
-    //loadUserData();
-  }
-
-  //Load Events id to eventosfavoritos
-  loadUserData() async {
-    userpreferences = await SharedPreferences.getInstance();
-    if (userpreferences.getStringList('favoritos') == null) {
-      return;
-    }
-    eventosFavoritos = userpreferences.getStringList('favoritos');
-    print('Load User Data : $eventosFavoritos');
-  }
-
-  saveUserData() {
-    userpreferences.setStringList('favoritos', eventosFavoritos!);
-    loadUserData();
-    print('Saved User Data : $eventosFavoritos');
   }
 
   //order list events by date
@@ -67,16 +49,17 @@ class _FavoritesState extends State<Favorites> {
   }
 
   //get events from user favorites and gets them from api
-  Future<List<Event?>?> loadEventFromUserData() async {
-    await loadUserData();
-    print('Loaded User Data : \n $eventosFavoritos');
-    numerofavoritos = 0;
-    eventosFavLista.clear();
+  Future<List<Event?>?> loadFavorites() async{
+    print('Loading Users Favorites Events ...');
+    up = await UserPreferences();
+    eventosFavoritos = up.getFavoritos();
     String url = 'http://vivaviseu.projectbox.pt/api/v1/events?event_list=';
     for (var i = 0; i < eventosFavoritos!.length; i++) {
-      int getid = int.parse(eventosFavoritos![i]);
+      String getid = eventosFavoritos![i];
       url = url + '$getid,';
+      print('$url');
     }
+    numerofavoritos = eventosFavoritos!.length;
     if (url == 'http://vivaviseu.projectbox.pt/api/v1/events?event_list=') {
       return null;
     }
@@ -93,45 +76,8 @@ class _FavoritesState extends State<Favorites> {
         eventosFavLista.add(Data.result![i].event);
       }
     }
-    numerofavoritos = eventosFavLista.length;
     orderListEvents(eventosFavLista);
     return eventosFavLista;
-  }
-
-  addEventUserData(int id) {
-    print('Add Event User Data : $eventosFavoritos');
-    if (eventosFavoritos!.contains(id.toString())) {
-      print('After add Event User Data : $eventosFavoritos');
-      removeEventUserData(id);
-      return;
-    }
-    eventosFavoritos!.add(id.toString());
-    saveUserData();
-    print('After add Event User Data : $eventosFavoritos');
-  }
-
-  removeEventUserData(int id) {
-    print('Remove Event User Data : $eventosFavoritos');
-    eventosFavoritos!.remove(id.toString());
-    saveUserData();
-    loadUserData();
-    print('After Remove Event User Data : $eventosFavoritos');
-  }
-
-  Widget _getIconFavorite(int id) {
-    loadUserData();
-    String string = id.toString();
-    if (eventosFavoritos != null && eventosFavoritos!.contains(string)) {
-      return Image.asset(
-        'assets/images/icons/icon_favorites.png',
-        scale: 2,
-      );
-    } else {
-      return Image.asset(
-        'assets/images/icons/icon_favorite.png',
-        scale: 1.5,
-      );
-    }
   }
 
   @override
@@ -165,7 +111,7 @@ class _FavoritesState extends State<Favorites> {
                       //color: Colors.black,
                       height: 650,
                       child: FutureBuilder(
-                          future: loadEventFromUserData(),
+                          future: loadFavorites(),
                           // ignore: missing_return
                           builder:
                               // ignore: missing_return
@@ -224,6 +170,7 @@ class _FavoritesState extends State<Favorites> {
                                               '/eventdetails?eventoid=$eventid');
                                         },
                                         child: EventoContainer(
+                                          userPreferences: up,
                                           id: eventid,
                                           title: title,
                                           location: location,
@@ -259,6 +206,7 @@ class _FavoritesState extends State<Favorites> {
 }
 
 class EventoContainer extends StatefulWidget {
+  final UserPreferences userPreferences;
   final int? id;
   final String? title;
   final String image;
@@ -269,6 +217,7 @@ class EventoContainer extends StatefulWidget {
   final List<String?> categorylist;
   const EventoContainer({
     Key? key,
+    required this.userPreferences,
     required this.image,
     required this.title,
     required this.location,
@@ -292,6 +241,7 @@ class _EventoContainerState extends State<EventoContainer> {
         children: [
           EventDate(eventdate: widget.eventdate, imagebool: widget.imagebool),
           EventDetailsContainer(
+            userPreferences: widget.userPreferences,
             id: widget.id,
             title: widget.title,
             location: widget.location,
@@ -362,6 +312,7 @@ class EventDate extends StatelessWidget {
 }
 
 class EventDetailsContainer extends StatefulWidget {
+  final UserPreferences userPreferences;
   final int? id;
   final String? title;
   final String image;
@@ -370,6 +321,7 @@ class EventDetailsContainer extends StatefulWidget {
   final List<String?> listaCategorias;
   const EventDetailsContainer({
     Key? key,
+    required this.userPreferences,
     required this.image,
     required this.title,
     required this.location,
@@ -391,48 +343,6 @@ class _EventDetailsContainerState extends State<EventDetailsContainer> {
   @override
   void initState() {
     super.initState();
-    initSharedPreferences();
-  }
-
-  void initSharedPreferences() async {
-    userpreferences = await SharedPreferences.getInstance();
-    loadUserData();
-  }
-
-  addEventUserData(int? id) {
-    loadUserData();
-    if (eventosFavoritos!.contains(id.toString())) {
-      removeEventUserData(id);
-      _favorite = false;
-      return;
-    }
-    eventosFavoritos!.add(id.toString());
-    _favorite = true;
-    saveUserData();
-    print('After add Event User Data : $eventosFavoritos');
-  }
-
-  removeEventUserData(int? id) {
-    loadUserData();
-    eventosFavoritos!.remove(id.toString());
-    saveUserData();
-    print('After Remove Event [$id] User Data : $eventosFavoritos');
-  }
-
-  //Load Events id to eventosfavoritos
-  loadUserData() async {
-    userpreferences = await SharedPreferences.getInstance();
-    if (userpreferences.getStringList('favoritos') == null) {
-      return;
-    }
-    eventosFavoritos = userpreferences.getStringList('favoritos');
-    print('Load User Data : $eventosFavoritos');
-  }
-
-  saveUserData() {
-    userpreferences.setStringList('favoritos', eventosFavoritos!);
-    loadUserData();
-    print('Saved User Data : $eventosFavoritos');
   }
 
   @override
@@ -478,12 +388,16 @@ class _EventDetailsContainerState extends State<EventDetailsContainer> {
                             GestureDetector(
                               onTap: () {
                                 setState(() {
-                                  loadUserData();
-                                  addEventUserData(widget.id);
+                                  if(widget.userPreferences.isFavorito(widget.id!)){
+                                    widget.userPreferences.removeFavorito(widget.id!);
+                                  }else{
+                                  widget.userPreferences.addFavorito(widget.id!);}
+                                  /*loadUserData();
+                                  addEventUserData(widget.id);*/
                                 });
                               },
                               child: Image(
-                                image: _favorite == true
+                                image: widget.userPreferences.isFavorito(widget.id!)
                                     ? AssetImage(
                                         'assets/images/icons/icon_favorites.png')
                                     : AssetImage(

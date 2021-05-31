@@ -7,12 +7,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:vivaviseu/config/router.dart';
 import 'package:vivaviseu/objects.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
 import 'package:vivaviseu/calendareventslist.dart';
+import 'package:vivaviseu/utils/utils.dart';
 
 class Calendar extends StatefulWidget {
   @override
@@ -25,12 +27,13 @@ class _CalendarState extends State<Calendar> {
   int? numeroeventos;
   List<String> eventidsStrings = [];
   final ValueNotifier<bool> eventschange = ValueNotifier(false);
-  //late final ValueNotifier<List<String>> eventidsStrings;
-
+  late UserPreferences teste;
+  
   @override
   void initState() {
     print('[---------- Página de Calendário de Eventos ----------]');
     super.initState();
+    teste = UserPreferences();
   }
 
   Future<void>? loadeventsmap() async {
@@ -78,8 +81,8 @@ class _CalendarState extends State<Calendar> {
       eventidsStrings.clear();
       eventidsStrings = liststring;
       eventschange.value = true;
-      eventschange.notifyListeners();
-      print('$eventidsStrings');
+      //eventschange.notifyListeners();
+      //print('$eventidsStrings');
   }
 
   @override
@@ -119,7 +122,7 @@ class _CalendarState extends State<Calendar> {
                           builder: (context, value, _){
                             eventschange.value = false;
                             return eventidsStrings.isEmpty == false
-                            ? EventsDayList(listaEvent: eventidsStrings)
+                            ? EventsDayList(listaEvent: eventidsStrings,teste: teste)
                             : NoEventsContainer();
                           },
                         )
@@ -262,17 +265,15 @@ class _CalendarTestState extends State<CalendarTest> {
             markerSizeScale: 0.2,
           ),
           eventLoader: _getEventsForDay,
-          selectedDayPredicate: (day) {
-            return isSameDay(_selectedDay, day);
+          selectedDayPredicate: (selectedDay) {
+            return isSameDay(_selectedDay, selectedDay);
           },
           onDaySelected: (selectedDay, focusedDay) {
             setState(() {
               _selectedDay = selectedDay;
               _focusedDay = focusedDay;
-              if (_getEventsForDay(_selectedDay) != null) {
-                widget.customFunction(
-                    buildListEvent(_getEventsForDay(_selectedDay)));
-              }
+              widget.customFunction(
+                  buildListEvent(_getEventsForDay(_selectedDay)));
             });
           },
           onPageChanged: (focusedDay) {
@@ -285,9 +286,11 @@ class _CalendarTestState extends State<CalendarTest> {
 class EventsDayList extends StatefulWidget {
   const EventsDayList({
     Key? key,
+    required this.teste,
     required this.listaEvent,
   }) : super(key: key);
   final List<String>? listaEvent;
+  final UserPreferences teste;
   @override
   _EventsDayListState createState() => _EventsDayListState();
 }
@@ -369,12 +372,14 @@ class _EventsDayListState extends State<EventsDayList> {
                             var timeStart = event.dates[0].date.timeStart;
                             var eventdate = event.dates[0].date.eventDate;
                             var image = 'http://${event.images[0].image.thumbnail}';
+                            UserPreferences teste = widget.teste;
                             List<String> listcateg = [];
                             int numcateg = event.categories.length;
                             for (var i = 0; i < numcateg; i++) {
                               listcateg.add(event.categories[i].category.name);
                             }
                             return EventContainerCalendar(
+                                teste: teste,
                                 image: image,
                                 title: title,
                                 location: location,
@@ -398,8 +403,10 @@ class EventContainerCalendar extends StatefulWidget {
   final DateTime? timeStart;
   final DateTime? eventdate;
   final List<String?> categorylist;
+  final UserPreferences teste;
   const EventContainerCalendar({
     Key? key,
+    required this.teste,
     required this.image,
     required this.title,
     required this.location,
@@ -461,10 +468,11 @@ class _EventContainerCalendarState extends State<EventContainerCalendar> {
                                   setState(() {
                                     /*loadUserData();
                                     addEventUserData(widget.id);*/
+                                    widget.teste.isFavorito(widget.id!) ? widget.teste.removeFavorito(widget.id!) : widget.teste.addFavorito(widget.id!);
                                   });
                                 },
                                 child: Image(
-                                  image: _favorite == true
+                                  image: widget.teste.isFavorito(widget.id!) == true
                                       ? AssetImage(
                                           'assets/images/icons/icon_favorites.png')
                                       : AssetImage(
