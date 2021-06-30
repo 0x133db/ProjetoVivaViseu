@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:vivaviseu/objects.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class EventDetailsContent extends StatelessWidget {
   final Event? event;
+  late GoogleMapController mapController;
 
   EventDetailsContent({this.event});
+
+   void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    double lat = double.parse(event!.latitude!);
+    double long = double.parse(event!.longitude!);
+    final LatLng _center = LatLng(lat, long);
     return Container(
       color: Color.fromARGB(255, 34, 42, 54),
       child: SingleChildScrollView(
@@ -80,6 +89,12 @@ class EventDetailsContent extends StatelessWidget {
                         width: screenWidth,
                         height: screenHeight / 6,
                         color: Colors.white,
+                        child: GoogleMap(
+                          onMapCreated: _onMapCreated,
+                          initialCameraPosition: CameraPosition(target: _center,
+                          zoom: 11.0,
+                          ),
+                        )
                       ),
                       SizedBox(height: 25),
                       Text(

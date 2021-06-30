@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vivaviseu/calendar.dart';
 import 'package:http/http.dart' as http;
+import 'package:vivaviseu/highlightedevents.dart';
 import 'package:vivaviseu/home.dart';
 import 'package:animated_search_bar/animated_search_bar.dart'; //search bar
 import 'package:vivaviseu/searching.dart';
+import 'package:vivaviseu/utils/category.dart';
 
 import 'config/router.dart';
 import 'objects.dart';
@@ -15,6 +17,11 @@ import 'objects.dart';
 int? num;
 
 class AllEvents extends StatefulWidget {
+  const AllEvents({
+    Key? key,
+    this.categoryname
+  }) : super(key: key);
+  final String? categoryname;
   @override
   _AllEventsState createState() => _AllEventsState();
 }
@@ -34,7 +41,6 @@ class _AllEventsState extends State<AllEvents> {
   @override
   void initState() {
     super.initState();
-    initSharedPreferences();
     allevents = loadallevents();
     numeroeventos = num;
   }
@@ -96,62 +102,6 @@ class _AllEventsState extends State<AllEvents> {
 
 //Users Favorite Events Data Functions
 //
-void initSharedPreferences() async {
-    //SharedPreferences.setMockInitialValues(<String, dynamic>{'favoritos':[]});
-    print('########### Loading Users Data... ###########');
-    loadUserData();
-    print('########### Users Data Loaded... $eventosFavoritos ###########');
-  }
-  
-  loadUserData()async{
-    userpreferences = await SharedPreferences.getInstance();
-    if (userpreferences.getStringList('favoritos') == null) {
-      return;
-    }
-    eventosFavoritos = userpreferences.getStringList('favoritos');    
-    print('Load User Data : $eventosFavoritos');
-  }
-
-  saveUserData(){
-    userpreferences.setStringList('favoritos', eventosFavoritos!);      
-    loadUserData();
-    print('Saved User Data : $eventosFavoritos');
-  }
-
-  addEventUserData(int? id){
-    print('Add Event User Data : $eventosFavoritos');
-    if(eventosFavoritos!.contains(id.toString())){
-      print('After add Event User Data : $eventosFavoritos');
-      removeEventUserData(id);
-      return;
-    }
-    eventosFavoritos!.add(id.toString());
-    saveUserData();
-    print('After add Event User Data : $eventosFavoritos');
-  }
-
-  removeEventUserData(int? id){
-    print('Remove Event User Data : $eventosFavoritos');
-    eventosFavoritos!.remove(id.toString());
-    saveUserData();
-    loadUserData();
-    print('After Remove Event User Data : $eventosFavoritos');
-
-  }
-
-  Widget _getIconFavorite(int? id) {
-    loadUserData();
-    String string = id.toString();
-    if(eventosFavoritos != null && eventosFavoritos!.contains(string)){
-      return Image.asset(
-        'assets/images/icons/icon_favorites.png',
-        scale: 2,);
-    }else{
-      return Image.asset(
-        'assets/images/icons/icon_favorite.png',
-        scale: 1.5,);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -178,10 +128,10 @@ void initSharedPreferences() async {
                         color: Colors.white,
                       ),
                       onPressed: () {
-                        //Router_.router.pop(context);
-                        setState(() {
+                        Router_.router.pop(context);
+                        /*setState(() {
                           homepage = !homepage;
-                        });
+                        });*/
                       }),
                   //Titulo
                   Text(
@@ -259,55 +209,14 @@ void initSharedPreferences() async {
                                               int index) {
                                             var categoryname =
                                                 snapshot.data[index].name;
-                                            print(
-                                                'CategoriaLoader: ${categoryname}');
+                                            bool? selected;
+                                            if(widget.categoryname == categoryname){
+                                              selected = true;
+                                            }
                                             return Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 5, right: 5),
-                                              child: Container(
-                                                width: 110,
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(100)),
-                                                  child: TextButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        teste = !teste;
-                                                      });
-                                                    },
-                                                    child: Text(
-                                                      '$categoryname',
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight: FontWeight
-                                                              .normal),
-                                                    ),
-                                                    style: ButtonStyle(
-                                                        backgroundColor: teste == true
-                                                            ? MaterialStateProperty.all<Color>(
-                                                                Color.fromRGBO(
-                                                                    233,
-                                                                    168,
-                                                                    3,
-                                                                    1.0))
-                                                            : MaterialStateProperty.all<Color>(
-                                                                Color.fromARGB(
-                                                                    255,
-                                                                    47,
-                                                                    59,
-                                                                    76)),
-                                                        shape: MaterialStateProperty.all<
-                                                                RoundedRectangleBorder>(
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      20.0),
-                                                        ))),
-                                                  ),
-                                                ),
-                                              ),
+                                              child: Container()//CategoryTab(categoryname: categoryname, preselected: selected,),
                                             );
                                           });
                                     case ConnectionState.active:
@@ -421,19 +330,21 @@ void initSharedPreferences() async {
                                                             width: 50,
                                                             height: 50,
                                                             child: ClipRRect(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .all(Radius
-                                                                          .circular(
-                                                                              25)),
+                                                              borderRadius: BorderRadius
+                                                                  .all(Radius
+                                                                      .circular(
+                                                                          25)),
                                                               child: IconButton(
-                                                                icon: _getIconFavorite(eventid),
-                                                                onPressed: () {
-                                                                  setState(() {
-                                                                    addEventUserData(eventid);
-                                                                  });
-                                                                },
+                                                                icon:
+                                                                    Image.asset(
+                                                                  'assets/images/icons/icon_favorites.png',
+                                                                  scale: 2,
                                                                 ),
+                                                                onPressed: () {
+                                                                  setState(
+                                                                      () {});
+                                                                },
+                                                              ),
                                                             ),
                                                           )
                                                         ]),

@@ -10,6 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vivaviseu/config/router.dart';
 import 'package:vivaviseu/objects.dart';
 import 'package:http/http.dart' as http;
+import 'package:vivaviseu/utils/responsive.dart';
+import 'package:vivaviseu/utils/style.dart';
 import 'package:vivaviseu/utils/utils.dart';
 
 class Favorites extends StatefulWidget {
@@ -25,8 +27,8 @@ class _FavoritesState extends State<Favorites> {
   int numerofavoritos = 0;
   ///////
   late UserPreferences up;
-  ///
 
+  ///
 
   @override
   void initState() {
@@ -34,22 +36,8 @@ class _FavoritesState extends State<Favorites> {
     super.initState();
   }
 
-  //order list events by date
-  orderListEvents(List<Event?> list) {
-    print('A ordernar Eventos');
-    int size = list.length;
-    Event? aux;
-    for (int i = 0; i < size - 1; i++) {
-      if (list[i + 1]!.startDate!.isBefore(list[i]!.startDate!)) {
-        aux = list[i];
-        list[i] = list[i + 1];
-        list[i + 1] = aux;
-      }
-    }
-  }
-
   //get events from user favorites and gets them from api
-  Future<List<Event?>?> loadFavorites() async{
+  Future<List<Event?>?> loadFavorites() async {
     print('Loading Users Favorites Events ...');
     up = await UserPreferences();
     eventosFavoritos = up.getFavoritos();
@@ -82,39 +70,33 @@ class _FavoritesState extends State<Favorites> {
 
   @override
   Widget build(BuildContext context) {
+    eventosFavLista.clear();
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 34, 42, 54),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(25, 50, 25, 0),
-        child: Container(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Favoritos',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 26,
-                ),
-              ),
-              ///////Teste
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Container(
-                  //color: Colors.yellow,
-                  height: 645,
-                  child: SingleChildScrollView(
-                    dragStartBehavior: DragStartBehavior.start,
-                    scrollDirection: Axis.vertical,
-                    child: Container(
-                      //color: Colors.black,
-                      height: 650,
+        backgroundColor: Color.fromARGB(255, 34, 42, 54),
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+                6 * SizeConfig.widthMultiplier!,
+                1.1 * SizeConfig.heightMultiplier!,
+                6 * SizeConfig.widthMultiplier!,
+                0),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Text(
+                    'Favoritos',
+                    style: Theme.of(context).textTheme.headline1,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          top: SizeConfig.heightMultiplier! * 5),
                       child: FutureBuilder(
                           future: loadFavorites(),
-                          // ignore: missing_return
                           builder:
-                              // ignore: missing_return
                               (BuildContext context, AsyncSnapshot snapshot) {
                             switch (snapshot.connectionState) {
                               case ConnectionState.none:
@@ -123,7 +105,7 @@ class _FavoritesState extends State<Favorites> {
                                       child: CircularProgressIndicator()),
                                 );
                               case ConnectionState.done:
-                                if (numerofavoritos == 0) {
+                                if (eventosFavLista.length == 0) {
                                   return Container(
                                     child: Center(
                                       child: Text(
@@ -136,52 +118,63 @@ class _FavoritesState extends State<Favorites> {
                                     ),
                                   );
                                 }
-                                return ListView.builder(
-                                    scrollDirection: Axis.vertical,
-                                    physics: ClampingScrollPhysics(),
-                                    itemCount: numerofavoritos,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      var event = snapshot.data[index];
-                                      var title = snapshot.data[index].title;
-                                      var eventid = snapshot.data[index].id;
-                                      var location =
-                                          snapshot.data[index].location;
-                                      var timeStart = snapshot
-                                          .data[index].dates[0].date.timeStart;
-                                      var eventdate = snapshot
-                                          .data[index].dates[0].date.eventDate;
-                                      var image =
-                                          'http://${snapshot.data[index].images[0].image.thumbnail}';
-                                      List<String?> listcateg = [];
-                                      int numcateg = snapshot
-                                          .data[index].categories.length;
-                                      for (var i = 0; i < numcateg; i++) {
-                                        listcateg.add(snapshot.data[index]
-                                            .categories[i].category.name);
-                                      }
-                                      bool imagebool = true;
-                                      index == numerofavoritos - 1
-                                          ? imagebool = false
-                                          : imagebool = true;
-                                      return GestureDetector(
-                                        onTap: () {
-                                          Router_.router.navigateTo(context,
-                                              '/eventdetails?eventoid=$eventid');
-                                        },
-                                        child: EventoContainer(
-                                          userPreferences: up,
-                                          id: eventid,
-                                          title: title,
-                                          location: location,
-                                          eventdate: eventdate,
-                                          timeStart: timeStart,
-                                          image: image,
-                                          imagebool: imagebool,
-                                          categorylist: listcateg,
-                                        ),
-                                      );
-                                    });
+                                return Container(
+                                  height: SizeConfig.maxHeight,
+                                  width: SizeConfig.maxWidth,
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.vertical,
+                                      physics: ClampingScrollPhysics(),
+                                      itemCount: eventosFavLista.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        var event = snapshot.data[index];
+                                        var title =
+                                            snapshot.data[index].title;
+                                        var eventid = snapshot.data[index].id;
+                                        var location =
+                                            snapshot.data[index].location;
+                                        var timeStart = snapshot.data[index]
+                                            .dates[0].date.timeStart;
+                                        var eventdate = snapshot.data[index]
+                                            .dates[0].date.eventDate;
+                                        var image =
+                                            'http://${snapshot.data[index].images[0].image.thumbnail}';
+                                        List<String?> listcateg = [];
+                                        int numcateg = snapshot
+                                            .data[index].categories.length;
+                                        for (var i = 0; i < numcateg; i++) {
+                                          listcateg.add(snapshot.data[index]
+                                              .categories[i].category.name);
+                                        }
+                                        bool imagebool = true;
+                                        index == numerofavoritos - 1
+                                            ? imagebool = false
+                                            : imagebool = true;
+                                        return GestureDetector(
+                                          onTap: () {
+                                            Router_.router.navigateTo(context,
+                                                '/eventdetails?eventoid=$eventid');
+                                          },
+                                          child: WidgetContainerEventos(
+                                            evento: event,
+                                            userPreferences: up,
+                                            listacategorias: listcateg,
+                                            imagebool: imagebool,
+                                          ),
+                                          /*EventoContainer(
+                                                userPreferences: up,
+                                                id: eventid,
+                                                title: title,
+                                                location: location,
+                                                eventdate: eventdate,
+                                                timeStart: timeStart,
+                                                image: image,
+                                                imagebool: imagebool,
+                                                categorylist: listcateg,
+                                              ),*/
+                                        );
+                                      }),
+                                );
                               case ConnectionState.waiting:
                                 return Container(
                                   child: Center(
@@ -194,14 +187,12 @@ class _FavoritesState extends State<Favorites> {
                             }
                           }),
                     ),
-                  ),
-                ),
+                  )
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }
 
@@ -235,19 +226,30 @@ class _EventoContainerState extends State<EventoContainer> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 135,
+      //color: Colors.green,
+      height: 15 * SizeConfig.heightMultiplier!,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EventDate(eventdate: widget.eventdate, imagebool: widget.imagebool),
-          EventDetailsContainer(
-            userPreferences: widget.userPreferences,
-            id: widget.id,
-            title: widget.title,
-            location: widget.location,
-            image: widget.image,
-            timeStart: widget.timeStart,
-            listaCategorias: widget.categorylist,
+          Expanded(
+            flex: 1,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 1),
+              child: EventDate(
+                  eventdate: widget.eventdate, imagebool: widget.imagebool),
+            ),
+          ),
+          Flexible(
+            flex: 4,
+            child: EventDetailsContainer(
+              userPreferences: widget.userPreferences,
+              id: widget.id,
+              title: widget.title,
+              location: widget.location,
+              image: widget.image,
+              timeStart: widget.timeStart,
+              listaCategorias: widget.categorylist,
+            ),
           ),
         ],
       ),
@@ -271,8 +273,8 @@ class EventDate extends StatelessWidget {
     var month = formatDate(startdate, [M]);
     //Fim
     return Container(
-      height: 135, //tamanho do container
-      width: 50,
+      height: 15 * SizeConfig.heightMultiplier!, //altura do container data
+      width: SizeConfig.maxWidth! * 0.15, //largura container data
       //color: Colors.grey, //verificar espaço do container
       color: Color.fromARGB(255, 34, 42, 54),
       child: Column(
@@ -282,26 +284,23 @@ class EventDate extends StatelessWidget {
             startdate.day.toString(),
             style: TextStyle(
               color: Color.fromRGBO(233, 168, 3, 1),
-              fontWeight: FontWeight.w800,
-              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
             ),
             textAlign: TextAlign.center,
           ),
           Text(
             month,
             style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
           ),
           Container(
-            height: 105,
-            width: 10,
             child: imagebool == true
-                ? Image(
-                    image: AssetImage('assets/images/icons/image_line.png'),
-                    fit: BoxFit.fitHeight,
-                    height: 105, //tamanho da imagem
+                ? Expanded(
+                    child: Image(
+                      image: AssetImage('assets/images/icons/image_line.png'),
+                      fit: BoxFit.fitHeight,
+                    ),
                   )
                 : null,
           )
@@ -347,163 +346,163 @@ class _EventDetailsContainerState extends State<EventDetailsContainer> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        height: 112,
-        width: 311,
-        child: Container(
-          width: 311,
-          child: Row(
-            children: [
-              Stack(
-                alignment: Alignment.centerLeft,
-                children: [
-                  //Widget de Imagem de Evento
-                  Container(
-                    width: 113,
-                    decoration: BoxDecoration(
-                      //penso que posso tirar boxdecoration
-                      //color: Colors.brown,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                  ),
-                  Stack(
+    return Row(
+      children: [
+        Stack(
+          alignment: Alignment.centerLeft,
+          children: [
+            //Widget de Imagem de Evento
+            Container(
+              height: 1 * SizeConfig.heightMultiplier!,
+              width: 1 * SizeConfig.widthMultiplier!,
+            ),
+            Stack(
+              children: [
+                ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    child: Image.network(
+                      widget.image,
+                      fit: BoxFit.cover,
+                    )),
+                Positioned(
+                  top: 6,
+                  right: 10,
+                  child: Stack(
+                    alignment: Alignment.center,
                     children: [
-                      ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          child: Image.network(
-                            widget.image,
-                            fit: BoxFit.cover,
-                          )),
-                      Positioned(
-                        top: 5,
-                        right: 5,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Image(
-                              image: AssetImage(
-                                'assets/images/icons/icon_ellipse.png',
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  if(widget.userPreferences.isFavorito(widget.id!)){
-                                    widget.userPreferences.removeFavorito(widget.id!);
-                                  }else{
-                                  widget.userPreferences.addFavorito(widget.id!);}
-                                  /*loadUserData();
-                                  addEventUserData(widget.id);*/
-                                });
-                              },
-                              child: Image(
-                                image: widget.userPreferences.isFavorito(widget.id!)
-                                    ? AssetImage(
-                                        'assets/images/icons/icon_favorites.png')
-                                    : AssetImage(
-                                        'assets/images/icons/icon_favorite.png'),
-                                height: 12,
-                              ),
-                            )
-                          ],
+                      Image(
+                        image: AssetImage(
+                          'assets/images/icons/icon_ellipse.png',
                         ),
+                        height: 3 * SizeConfig.heightMultiplier!,
+                        color: Colors.transparent,
+                        colorBlendMode: BlendMode.hardLight,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (widget.userPreferences.isFavorito(widget.id!)) {
+                              widget.userPreferences.removeFavorito(widget.id!);
+                            } else {
+                              widget.userPreferences.addFavorito(widget.id!);
+                            }
+                          });
+                        },
+                        child: Image(
+                            image: widget.userPreferences.isFavorito(widget.id!)
+                                ? AssetImage(
+                                    'assets/images/icons/icon_favorites.png',
+                                  )
+                                : AssetImage(
+                                    'assets/images/icons/icon_favorite.png'),
+                            height: 3 * SizeConfig.heightMultiplier!),
                       )
                     ],
                   ),
-                ],
-              ),
-              Container(
-                  height: 95,
-                  width: 198,
-                  decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 47, 59, 76),
-                      borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(10),
-                          bottomRight: Radius.circular(10))),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 7),
-                        child: Row(
-                          children: [
-                            CategoryWidget(
-                                categorytext: widget.listaCategorias[0]),
-                            SizedBox(
-                              width: 4,
-                            ),
-                            widget.listaCategorias.length > 1
-                                ? CategoryplusWidget(categorytext: '+1')
-                                : Container(),
-                          ],
+                )
+              ],
+            ),
+          ],
+        ),
+        Expanded(
+          child: Container(
+              height: 11 * SizeConfig.heightMultiplier!,
+              decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 47, 59, 76),
+                  borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(10),
+                      bottomRight: Radius.circular(10))),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 10, 10, 7),
+                    child: Row(
+                      children: [
+                        Flexible(
+                          //fit: FlexFit.loose,
+                          child: CategoryWidget(context,
+                              categorytext: widget.listaCategorias[0]),
                         ),
+                        SizedBox(
+                          width: 4,
+                        ),
+                        widget.listaCategorias.length > 1
+                            ? CategoryplusWidget(context, categorytext: '+1')
+                            : Container(),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 2, 5, 0),
+                    child: Text(
+                      widget.title!,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 2, 5, 0),
-                        child: Text(
-                          widget.title!,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 2, 5, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Image.asset(
+                            'assets/images/icons/icon_eventdetailswatch.png',
+                            scale: 2),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        Text(
+                          formatDate(widget.timeStart!, [HH]) +
+                              'h' +
+                              formatDate(widget.timeStart!, [nn]),
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w400,
-                            fontSize: 14,
+                            fontSize: 12,
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 2, 5, 0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Image.asset(
-                                'assets/images/icons/icon_eventdetailswatch.png'),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              formatDate(widget.timeStart!, [HH]) +
-                                  'h' +
-                                  formatDate(widget.timeStart!, [nn]),
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 2, 5, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Image.asset(
+                          'assets/images/icons/icon_eventdetailslocation.png',
+                          scale: 2,
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 2, 5, 0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Image.asset(
-                                'assets/images/icons/icon_eventdetailslocation.png'),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              widget.location!,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
+                        SizedBox(
+                          width: 5,
                         ),
-                      ),
-                    ],
-                  ))
-            ],
-          ),
-        ));
+                        Text(
+                          widget.location!,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )),
+        )
+      ],
+    );
   }
 }
 
 class CategoryWidget extends StatelessWidget {
-  const CategoryWidget({
+  const CategoryWidget(
+    BuildContext context, {
     Key? key,
     required this.categorytext,
   }) : super(key: key);
@@ -513,24 +512,30 @@ class CategoryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 85,
-      height: 20,
-      decoration: BoxDecoration(
-          color: Color.fromRGBO(233, 168, 3, 1),
-          borderRadius: BorderRadius.all(Radius.circular(10))),
-      child: Center(
-        child: Text(
-          categorytext!,
-          style: TextStyle(
-              color: Colors.white, fontWeight: FontWeight.w400, fontSize: 11),
-        ),
-      ),
-    );
+        //width: SizeConfig.widthMultiplier! * 18,
+        //width: SizeConfig.widthMultiplier! * 18,
+        height: SizeConfig.heightMultiplier! * 2.3,
+        decoration: BoxDecoration(
+            color: Color.fromRGBO(233, 168, 3, 1),
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+        child: Padding(
+          padding:  EdgeInsets.only(left: SizeConfig.widthMultiplier! * 3, right: SizeConfig.widthMultiplier! * 3),
+          child: Center(
+            child: Text(
+              categorytext!,
+              style: Theme.of(context)
+                  .textTheme
+                  .headline2!
+                  .copyWith(fontSize: 1.3 * SizeConfig.textMultiplier!),
+            ),
+          ),
+        ));
   }
 }
 
 class CategoryplusWidget extends StatelessWidget {
-  const CategoryplusWidget({
+  const CategoryplusWidget(
+    BuildContext context, {
     Key? key,
     required this.categorytext,
   }) : super(key: key);
@@ -540,17 +545,336 @@ class CategoryplusWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 30,
-      height: 20,
+      width: SizeConfig.widthMultiplier! * 5.7,
+      height: SizeConfig.heightMultiplier! * 2.3,
       decoration: BoxDecoration(
           color: Color.fromRGBO(233, 168, 3, 1),
           borderRadius: BorderRadius.all(Radius.circular(10))),
       child: Center(
-        child: Text(
-          categorytext,
-          style: TextStyle(
-              color: Colors.white, fontWeight: FontWeight.w400, fontSize: 11),
-        ),
+        child: Text(categorytext,
+            style: Theme.of(context)
+                .textTheme
+                .headline2!
+                .copyWith(fontSize: 1.3 * SizeConfig.textMultiplier!)),
+      ),
+    );
+  }
+}
+
+class WidgetContainerEventos extends StatefulWidget {
+  const WidgetContainerEventos(
+      {Key? key,
+      required this.evento,
+      required this.userPreferences,
+      required this.listacategorias,
+      required this.imagebool})
+      : super(key: key);
+  final Event evento;
+  final UserPreferences userPreferences;
+  final List<String?> listacategorias;
+  final bool imagebool;
+
+  @override
+  _WidgetContainerEventosState createState() => _WidgetContainerEventosState();
+}
+
+class _WidgetContainerEventosState extends State<WidgetContainerEventos> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: SizeConfig.heightMultiplier! *
+          20, //altura do container total (influencia todos os containers filhos)
+      child: Row(
+        children: [
+          Flexible(
+            flex: 1,
+            child: Container(
+              height: SizeConfig.heightMultiplier! * 20,
+              child: WidgetContainerImagemData(
+                imagebool: widget.imagebool,
+                evento: widget.evento,
+              ),
+            ),
+          ),
+          Flexible(
+            flex: 5,
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                height: SizeConfig.heightMultiplier! *
+                    16, //altura container com imagem e informaçoes
+                child: WidgetImagemDetalhesEventos(
+                    evento: widget.evento,
+                    userPreferences: widget.userPreferences,
+                    listacategorias: widget.listacategorias),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class WidgetImagemDetalhesEventos extends StatefulWidget {
+  const WidgetImagemDetalhesEventos(
+      {Key? key,
+      required this.evento,
+      required this.userPreferences,
+      required this.listacategorias})
+      : super(key: key);
+  final Event evento;
+  final UserPreferences userPreferences;
+  final List<String?> listacategorias;
+
+  @override
+  _WidgetImagemDetalhesEventosState createState() =>
+      _WidgetImagemDetalhesEventosState();
+}
+
+class _WidgetImagemDetalhesEventosState
+    extends State<WidgetImagemDetalhesEventos> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Row(
+        children: [
+          Container(
+            height: SizeConfig.heightMultiplier! * 16,
+            width: SizeConfig.widthMultiplier! * 29,
+            child: Stack(fit: StackFit.expand, children: [
+              ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  child: Image.network(
+                    'http://${widget.evento.images![0].image!.thumbnail!}',
+                    fit: BoxFit.cover,
+                  )),
+              Positioned(
+                top: 6,
+                right: 10,
+                child: Stack(alignment: Alignment.center, children: [
+                  Image(
+                    image: AssetImage(
+                      'assets/images/icons/icon_ellipse.png',
+                    ),
+                    height: 3 * SizeConfig.heightMultiplier!,
+                    color: Colors.transparent,
+                    colorBlendMode: BlendMode.hardLight,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (widget.userPreferences
+                            .isFavorito(widget.evento.id!)) {
+                          widget.userPreferences
+                              .removeFavorito(widget.evento.id!);
+                        } else {
+                          widget.userPreferences.addFavorito(widget.evento.id!);
+                        }
+                      });
+                    },
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Image(
+                          image: widget.userPreferences
+                                  .isFavorito(widget.evento.id!)
+                              ? AssetImage(
+                                  'assets/images/icons/icon_favorites.png',
+                                )
+                              : AssetImage(
+                                  'assets/images/icons/icon_favorite.png'),
+                          height: 2.6 * SizeConfig.heightMultiplier!),
+                    ),
+                  )
+                ]),
+              ),
+            ]),
+          ),
+          Expanded(
+            flex: 4,
+            child: Container(
+              height: SizeConfig.heightMultiplier! * 13.5,
+              decoration: BoxDecoration(
+                color: AppTheme.appEventContainerColor,
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(10),
+                    bottomRight: Radius.circular(10)),
+              ),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                    SizeConfig.widthMultiplier! * 2.1,
+                    SizeConfig.heightMultiplier! * 1.2,
+                    SizeConfig.widthMultiplier! * 2.1,
+                    SizeConfig.heightMultiplier! * 1.2),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        //padding: const EdgeInsets.fromLTRB(10, 10, 10, 7),
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                        child: Row(
+                          children: [
+                            CategoryWidget(context,
+                                categorytext: widget.listacategorias[0]),
+                            SizedBox(
+                              width: SizeConfig.widthMultiplier! * 1.5,
+                            ),
+                            widget.listacategorias.length > 1
+                                ? CategoryplusWidget(context,
+                                    categorytext: '+1')
+                                : Container(),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                          0,
+                          SizeConfig.heightMultiplier! * 0.7,
+                          0,
+                          SizeConfig.heightMultiplier! * 0.7),
+                      child: Text(
+                        widget.evento.title!,
+                        style: Theme.of(context).textTheme.headline2!,
+                      ),
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                                'assets/images/icons/icon_eventdetailswatch.png',
+                                height: SizeConfig.imageSizeMultiplier! * 2.5,),
+                            SizedBox(
+                              width: SizeConfig.widthMultiplier! * 1.5,
+                            ),
+                            Text(
+                                '${formatDate(widget.evento.dates![0].date!.timeStart!, [
+                                      HH
+                                    ])}' +
+                                    'h' +
+                                    '${formatDate(widget.evento.dates![0].date!.timeStart!, [
+                                      nn
+                                    ])}',
+                                style: Theme.of(context).textTheme.caption),
+                          ],
+                        ),
+                        SizedBox(
+                          height: SizeConfig.heightMultiplier! * 0.3,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/images/icons/icon_eventdetailslocation.png',
+                              height: SizeConfig.imageSizeMultiplier! * 2.5,
+                            ),
+                            SizedBox(
+                              width: SizeConfig.widthMultiplier! * 1.5,
+                            ),
+                            Text(widget.evento.location!,
+                                style: Theme.of(context).textTheme.caption)
+                          ],
+                        )
+                      ],
+                    ),
+                    /*Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Image.asset(
+                            'assets/images/icons/icon_eventdetailswatch.png',
+                            scale: 0.5 * SizeConfig.imageSizeMultiplier!),
+                        SizedBox(
+                          width: SizeConfig.widthMultiplier! * 1.5,
+                        ),
+                        Text(
+                            '${formatDate(widget.evento.dates![0].date!.timeStart!, [
+                                  HH
+                                ])}' +
+                                'h' +
+                                '${formatDate(widget.evento.dates![0].date!.timeStart!, [
+                                  nn
+                                ])}',
+                            style: Theme.of(context).textTheme.caption),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Image.asset(
+                          'assets/images/icons/icon_eventdetailslocation.png',
+                          scale: 0.5 * SizeConfig.imageSizeMultiplier!,
+                        ),
+                        SizedBox(
+                          width: SizeConfig.widthMultiplier! * 1.5,
+                        ),
+                        Text(widget.evento.location!,
+                            style: Theme.of(context).textTheme.caption)
+                      ],
+                    )*/
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class WidgetContainerImagemData extends StatelessWidget {
+  const WidgetContainerImagemData(
+      {Key? key, required this.evento, required this.imagebool})
+      : super(key: key);
+  final Event evento;
+  final bool imagebool;
+  @override
+  Widget build(BuildContext context) {
+    DateTime startdate = evento.dates![0].date!.eventDate!;
+    var mes = formatDate(startdate, [M]);
+    return Container(
+      height: SizeConfig.heightMultiplier! * 19,
+      width: SizeConfig.maxWidth,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            startdate.day.toString(),
+            style: TextStyle(
+              color: Color.fromRGBO(233, 168, 3, 1),
+              fontWeight: FontWeight.bold,
+              fontSize: 1.6 * SizeConfig.textMultiplier!,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            mes,
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 1.7 * SizeConfig.textMultiplier!),
+          ),
+          Container(
+            child: imagebool == true
+                ? Expanded(
+                    child: Image(
+                      image: AssetImage('assets/images/icons/image_line.png'),
+                      fit: BoxFit.fitHeight,
+                    ),
+                  )
+                : null,
+          )
+        ],
       ),
     );
   }

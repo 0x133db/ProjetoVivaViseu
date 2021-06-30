@@ -1,7 +1,5 @@
-//import 'dart:html';
 import 'dart:collection';
 import 'dart:convert';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -10,10 +8,12 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:vivaviseu/config/router.dart';
+import 'package:vivaviseu/favorites.dart';
 import 'package:vivaviseu/objects.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
 import 'package:vivaviseu/calendareventslist.dart';
+import 'package:vivaviseu/utils/responsive.dart';
 import 'package:vivaviseu/utils/utils.dart';
 
 class Calendar extends StatefulWidget {
@@ -28,7 +28,7 @@ class _CalendarState extends State<Calendar> {
   List<String> eventidsStrings = [];
   final ValueNotifier<bool> eventschange = ValueNotifier(false);
   late UserPreferences teste;
-  
+
   @override
   void initState() {
     print('[---------- Página de Calendário de Eventos ----------]');
@@ -48,7 +48,41 @@ class _CalendarState extends State<Calendar> {
       print("Numero de Eventos Total: ${Data.result!.length}");
       int i;
       for (i = 0; i < Data.result!.length; i++) {
-        var date = Data.result![i].event!.dates![0].date!.eventDate;
+        //new code teste
+        if (Data.result![i].event!.hasRecurringDates == true) {
+          for (int x = 0; x < Data.result![i].event!.dates!.length; x++) {
+            var date = Data.result![i].event!.dates![x].date!.eventDate;
+            Event event = Data.result![i].event!;
+            if (mapaeventos[date!] == null) {
+              mapaeventos[date] = [];
+            }
+            if (mapaeventos[date]!.contains(event.id)) {
+              return;
+            } else {
+              mapaeventos[date]!.add(event);
+            }
+          }
+        } else {
+          var startdate = Data.result![i].event!.startDate;
+          var enddate = Data.result![i].event!.endDate;
+          var daysdif = enddate!.difference(startdate!).inDays;
+          var date = startdate;
+          print('dias diferença : $daysdif');
+          for (int x = 0; x <= daysdif; x++) {
+            Event event = Data.result![i].event!;
+            if (mapaeventos[date] == null) {
+              mapaeventos[date] = [];
+            }
+            if (mapaeventos[date]!.contains(event.id)) {
+              return;
+            } else {
+              mapaeventos[date]!.add(event);
+            }
+            date = date.add(Duration(days: 1));
+          }
+        }
+        //end new code test
+        /*var date = Data.result![i].event!.dates![0].date!.eventDate;
         Event event = Data.result![i].event!;
         if (mapaeventos[date!] == null) {
           mapaeventos[date] = [];
@@ -57,7 +91,7 @@ class _CalendarState extends State<Calendar> {
           return;
         } else {
           mapaeventos[date]!.add(event);
-        }
+        }*/
       }
       print('$mapaeventos');
       return;
@@ -77,60 +111,84 @@ class _CalendarState extends State<Calendar> {
     }
   }
 
-  void parentchange(List<String> liststring) {
-      eventidsStrings.clear();
-      eventidsStrings = liststring;
+  void checkTodays() {
+    DateTime hoje =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    if (mapaeventos[hoje] != null) {
       eventschange.value = true;
-      //eventschange.notifyListeners();
-      //print('$eventidsStrings');
+      print('Hoje há Eventos : ${mapaeventos[hoje]}');
+    }
+    return;
+  }
+
+  void parentchange(List<String> liststring) {
+    eventidsStrings.clear();
+    eventidsStrings = liststring;
+    eventschange.value = true;
+    //eventschange.notifyListeners();
+    //print('$eventidsStrings');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 34, 42, 54),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 50, 20, 5),
-        child: FutureBuilder(
-            future: loadeventsmap(),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.none:
-                  return Container(
-                      child: Center(child: CircularProgressIndicator()));
-                case ConnectionState.waiting:
-                  return Container(
-                      child: Center(child: CircularProgressIndicator()));
-                case ConnectionState.active:
-                  return Container(
-                      child: Center(child: CircularProgressIndicator()));
-                case ConnectionState.done:
-                  return Container(
-                    height: 700,
-                    //color: Colors.white,
-                    child: Column(
-                      children: [
-                        CalendarTest(
-                            mapaeventos: mapaeventos,
-                            customFunction: parentchange
-                        ),/*
-                        eventidsStrings.isEmpty == false
-                            ? EventsDayList(listaEvent: eventidsStrings)
-                            : Text('Parent ${eventidsStrings}')*/
-                        ValueListenableBuilder(
-                          valueListenable: eventschange, 
-                          builder: (context, value, _){
-                            eventschange.value = false;
-                            return eventidsStrings.isEmpty == false
-                            ? EventsDayList(listaEvent: eventidsStrings,teste: teste)
-                            : NoEventsContainer();
-                          },
-                        )
-                      ],
-                    ),
-                  );
-              }
-            }),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(25, 10, 25, 0),
+          child: FutureBuilder(
+              future: loadeventsmap(),
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.none:
+                    return Container(
+                        child: Center(child: CircularProgressIndicator()));
+                  case ConnectionState.waiting:
+                    return Container(
+                        child: Center(child: CircularProgressIndicator()));
+                  case ConnectionState.active:
+                    return Container(
+                        child: Center(child: CircularProgressIndicator()));
+                  case ConnectionState.done:
+                    //eventschange.value = true;
+                    return Container(
+                      height: SizeConfig.maxHeight!,
+                      //color: Colors.white,
+                      child: Column(
+                        children: [
+                          Flexible(
+                            flex: 3,
+                            child: FittedBox(
+                              fit: BoxFit.fitHeight,
+                              child: CalendarTest(
+                                  mapaeventos: mapaeventos,
+                                  customFunction: parentchange),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                  top: 3 * SizeConfig.heightMultiplier!),
+                              child: ValueListenableBuilder(
+                                valueListenable: eventschange,
+                                builder: (context, value, _) {
+                                  eventschange.value = false;
+                                  return eventidsStrings.isEmpty == false
+                                      ? EventsDayList(
+                                          listaEvent: eventidsStrings,
+                                          teste: teste)
+                                      : NoEventsContainer();
+                                },
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                }
+              }),
+        ),
       ),
     );
   }
@@ -159,7 +217,6 @@ class _CalendarState extends State<Calendar> {
 
   List<Event> _getEventsForDay(DateTime day) {
     DateTime teste = DateTime(day.year, day.month, day.day);
-    //print(' $day ------------ ${mapaeventos.containsKey(teste)}');
     return mapaeventos[teste] ?? [];
   }
 }
@@ -179,6 +236,15 @@ class CalendarTest extends StatefulWidget {
 class _CalendarTestState extends State<CalendarTest> {
   var _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
+
+  @override
+  void initState() {
+    print('[---------- Loading Eventos ----------]');
+    super.initState();
+    if (_getEventsForDay(_selectedDay).isNotEmpty) {
+      widget.customFunction(buildListEvent(_getEventsForDay(_selectedDay)));
+    }
+  }
 
   List<Event> _getEventsForDay(DateTime day) {
     DateTime teste = DateTime(day.year, day.month, day.day);
@@ -202,12 +268,18 @@ class _CalendarTestState extends State<CalendarTest> {
 
   @override
   Widget build(BuildContext context) {
+    if (_selectedDay == DateTime.now()) {
+      setState(() {
+        widget.customFunction(buildListEvent(_getEventsForDay(_selectedDay)));
+      });
+    }
+    //buildListEvent(_getEventsForDay(_selectedDay));
     return Container(
         decoration: BoxDecoration(
             color: Color.fromARGB(255, 47, 59, 76),
             borderRadius: BorderRadius.all(Radius.circular(5))),
-        height: 350,
-        width: 400,
+        height: SizeConfig.maxHeight! * 0.45,
+        width: SizeConfig.maxWidth!,
         child: TableCalendar(
           locale: 'pt_PT',
           firstDay: DateTime.utc(2021, 4, 1),
@@ -215,34 +287,49 @@ class _CalendarTestState extends State<CalendarTest> {
           startingDayOfWeek: StartingDayOfWeek.monday,
           focusedDay: _focusedDay,
           sixWeekMonthsEnforced: true,
-          rowHeight: 45,
+          rowHeight: SizeConfig.heightMultiplier! * 4.9,
+          shouldFillViewport: true,
           //estilo cores
           //
           //
           //estilo de texto da linha dias da semana
           daysOfWeekStyle: DaysOfWeekStyle(
-            weekdayStyle: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-            weekendStyle: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-            dowTextFormatter: (date,locale) => formatDate(date, [D], locale: PortugueseDateLocale())
-          ),
+              weekdayStyle: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              weekendStyle: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              dowTextFormatter: (date, locale) =>
+                  formatDate(date, [D], locale: PortugueseDateLocale())),
           //Header da Tabela
           headerStyle: HeaderStyle(
             titleCentered: true,
-            titleTextFormatter: (date,locale) => formatDate(date, [MM," de ",yyyy], locale: PortugueseDateLocale()),
-            titleTextStyle: TextStyle(
-              fontWeight: FontWeight.normal,
-              color: Colors.white,
-            ),
+            titleTextFormatter: (date, locale) => formatDate(
+                date, [MM, " ", yyyy],
+                locale: PortugueseDateLocale()),
+            titleTextStyle: Theme.of(context).textTheme.headline2!.copyWith(
+                fontSize: 1.7 * SizeConfig.textMultiplier!,
+                fontWeight: FontWeight.bold),
             formatButtonVisible: false,
-            leftChevronPadding: EdgeInsets.only(left: 100, top: 10, bottom: 10),
-            rightChevronPadding:
-                EdgeInsets.only(right: 100, top: 10, bottom: 10),
+            leftChevronIcon: Image.asset(
+              'assets/images/icons/leftchevron.png',
+              height: SizeConfig.imageSizeMultiplier! * 4,
+            ),
+            leftChevronPadding: EdgeInsets.only(
+                left: 30 * SizeConfig.widthMultiplier!,
+                top: 1.1 * SizeConfig.heightMultiplier!,
+                bottom: 1.1 * SizeConfig.heightMultiplier!),
+            rightChevronIcon: Image.asset(
+              'assets/images/icons/rightchevron.png',
+              height: SizeConfig.imageSizeMultiplier! * 4,
+            ),
+            rightChevronPadding: EdgeInsets.only(
+                right: 30 * SizeConfig.widthMultiplier!,
+                top: 1.1 * SizeConfig.heightMultiplier!,
+                bottom: 1.1 * SizeConfig.heightMultiplier!),
           ),
           calendarFormat: CalendarFormat.month,
           calendarStyle: CalendarStyle(
@@ -250,9 +337,15 @@ class _CalendarTestState extends State<CalendarTest> {
             todayTextStyle: TextStyle(
               color: Color.fromRGBO(233, 168, 3, 1),
             ),
+            todayDecoration: BoxDecoration(
+              color: Colors.transparent,
+              shape: BoxShape.circle,
+            ),
             weekendTextStyle: TextStyle(color: Colors.white),
             defaultTextStyle: TextStyle(color: Colors.white),
             markersMaxCount: 4,
+            //markerMargin: EdgeInsets.symmetric(horizontal: 0),
+            markersAlignment: Alignment.bottomCenter,
             canMarkersOverflow: false,
             markerDecoration: BoxDecoration(
               color: Color.fromRGBO(233, 168, 3, 1),
@@ -262,7 +355,7 @@ class _CalendarTestState extends State<CalendarTest> {
               color: Color.fromRGBO(233, 168, 3, 1),
               shape: BoxShape.circle,
             ),
-            markerSizeScale: 0.2,
+            markerSizeScale: 0.1,
           ),
           eventLoader: _getEventsForDay,
           selectedDayPredicate: (selectedDay) {
@@ -298,8 +391,10 @@ class EventsDayList extends StatefulWidget {
 class _EventsDayListState extends State<EventsDayList> {
   String url = '';
   int numeroeventos = 0;
+  late UserPreferences userpref;
 
   Future<List<Event>?> loadEventsFromDay(List<String> liststring) async {
+    userpref = await UserPreferences();
     List<Event> eventosalistar = [];
     String url = 'http://vivaviseu.projectbox.pt/api/v1/events?event_list=';
     for (var i = 0; i < liststring.length; i++) {
@@ -361,7 +456,7 @@ class _EventsDayListState extends State<EventsDayList> {
                     );
                   case ConnectionState.done:
                     return Container(
-                      height: 300,
+                      height: SizeConfig.maxHeight,
                       child: ListView.builder(
                           itemCount: numeroeventos,
                           itemBuilder: (BuildContext context, int index) {
@@ -371,14 +466,20 @@ class _EventsDayListState extends State<EventsDayList> {
                             var location = event.location;
                             var timeStart = event.dates[0].date.timeStart;
                             var eventdate = event.dates[0].date.eventDate;
-                            var image = 'http://${event.images[0].image.thumbnail}';
+                            var image =
+                                'http://${event.images[0].image.thumbnail}';
                             UserPreferences teste = widget.teste;
                             List<String> listcateg = [];
                             int numcateg = event.categories.length;
                             for (var i = 0; i < numcateg; i++) {
                               listcateg.add(event.categories[i].category.name);
                             }
-                            return EventContainerCalendar(
+                            return WidgetImagemDetalhesEventos(
+                              evento: event,
+                              listacategorias: listcateg,
+                              userPreferences: userpref,
+                            );
+                            /*EventContainerCalendar(
                                 teste: teste,
                                 image: image,
                                 title: title,
@@ -386,7 +487,7 @@ class _EventsDayListState extends State<EventsDayList> {
                                 id: eventoid,
                                 timeStart: timeStart,
                                 eventdate: eventdate,
-                                categorylist: listcateg);
+                                categorylist: listcateg);*/
                           }),
                     );
                 }
@@ -423,71 +524,68 @@ class _EventContainerCalendarState extends State<EventContainerCalendar> {
   bool _favorite = true;
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: Container(
-          height: 112,
+    return Container(
+        height: 112,
+        width: 311,
+        child: Container(
           width: 311,
-          child: Container(
-            width: 311,
-            child: Row(
-              children: [
-                Stack(
-                  alignment: Alignment.centerLeft,
-                  children: [
-                    //Widget de Imagem de Evento
-                    Container(
-                      width: 113,
-                      decoration: BoxDecoration(
-                        //penso que posso tirar boxdecoration
-                        //color: Colors.brown,
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                    ),
-                    Stack(
-                      children: [
-                        ClipRRect(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            child: Image.network(
-                              widget.image,
-                              fit: BoxFit.cover,
-                            )),
-                        Positioned(
-                          top: 5,
-                          right: 5,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Image(
-                                image: AssetImage(
-                                  'assets/images/icons/icon_ellipse.png',
-                                ),
+          child: Row(
+            children: [
+              Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  //Widget de Imagem de Evento
+                  Container(
+                    width: 113,
+                  ),
+                  Stack(
+                    children: [
+                      ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          child: Image.network(
+                            widget.image,
+                            fit: BoxFit.cover,
+                          )),
+                      Positioned(
+                        top: 5,
+                        right: 5,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Image(
+                              image: AssetImage(
+                                'assets/images/icons/icon_ellipse.png',
                               ),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    /*loadUserData();
-                                    addEventUserData(widget.id);*/
-                                    widget.teste.isFavorito(widget.id!) ? widget.teste.removeFavorito(widget.id!) : widget.teste.addFavorito(widget.id!);
-                                  });
-                                },
-                                child: Image(
-                                  image: widget.teste.isFavorito(widget.id!) == true
-                                      ? AssetImage(
-                                          'assets/images/icons/icon_favorites.png')
-                                      : AssetImage(
-                                          'assets/images/icons/icon_favorite.png'),
-                                  height: 12,
-                                ),
-                              )
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-                Container(
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  /*loadUserData();
+                                  addEventUserData(widget.id);*/
+                                  widget.teste.isFavorito(widget.id!)
+                                      ? widget.teste.removeFavorito(widget.id!)
+                                      : widget.teste.addFavorito(widget.id!);
+                                });
+                              },
+                              child: Image(
+                                image: widget.teste.isFavorito(widget.id!) ==
+                                        true
+                                    ? AssetImage(
+                                        'assets/images/icons/icon_favorites.png')
+                                    : AssetImage(
+                                        'assets/images/icons/icon_favorite.png'),
+                                height: 12,
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ),
+              Expanded(
+                child: Container(
                     height: 95,
                     width: 258,
                     decoration: BoxDecoration(
@@ -509,7 +607,9 @@ class _EventContainerCalendarState extends State<EventContainerCalendar> {
                                 width: 4,
                               ),
                               widget.categorylist.length > 1
-                                  ? CategoryplusWidget(categorytext: '+${widget.categorylist.length -1}')
+                                  ? CategoryplusWidget(
+                                      categorytext:
+                                          '+${widget.categorylist.length - 1}')
                                   : Container(),
                             ],
                           ),
@@ -570,11 +670,11 @@ class _EventContainerCalendarState extends State<EventContainerCalendar> {
                           ),
                         ),
                       ],
-                    ))
-              ],
-            ),
-          )),
-    );
+                    )),
+              )
+            ],
+          ),
+        ));
   }
 }
 
@@ -638,11 +738,12 @@ class NoEventsContainer extends StatelessWidget {
     return Container(
       height: 300,
       child: Center(
-        child: Text('Não Existem Eventos neste dia', 
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-        ) ,
+        child: Text(
+          'Não Existem Eventos neste dia',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+          ),
         ),
       ),
     );

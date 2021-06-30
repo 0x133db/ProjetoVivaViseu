@@ -1,9 +1,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.vivaviseu">
 <uses-permission android:name="android.permission.INTERNET" />
+<!-- Device Calendar Permissions-->
+<uses-permission android:name="android.permission.READ_CALENDAR" />
+<uses-permission android:name="android.permission.WRITE_CALENDAR" />
    <application
         android:label="vivaviseu"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value=" AIzaSyCDIu3a-qYP14DTbHScYY_wEsS3duDzLec"/>
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

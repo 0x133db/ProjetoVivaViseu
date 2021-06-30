@@ -29,11 +29,24 @@ dependencies:
   http: ^0.13.3
   table_calendar: ^3.0.0 #calendario de eventos
   carousel_slider: ^4.0.0-nullsafety.0 #carousel eventos
+  #storyswiper: ^1.0.1
+  #flutter_swiper_null_safety: ^1.0.2
+  flutter_card_swipper: ^0.4.0
   fluro: ^2.0.3 #fluro routing
   shared_preferences: ^2.0.5 #shared preferences -> save users events favorites
   animated_search_bar: ^2.0.0 #searchbar
   # intl: ^0.17.0 #date/time formatter library 
   date_format: ^2.0.2
+  outline_search_bar: ^2.2.0
+  google_maps_flutter: ^2.0.6
+  device_preview: ^0.7.3 #teste device preview
+  group_button: ^2.2.1
+  sizer: ^2.0.13
+  device_calendar: ^4.0.1-dev.13167
+  timezone: ^0.7.0
+  quiver: ^3.0.1 #numero de dias de um mes
+  link_text: ^0.2.0 #hiperligaçoes
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -75,6 +88,14 @@ flutter:
     - assets/images/icons/image_line.png
     - assets/images/icons/leftchevron.png
     - assets/images/icons/rightchevron.png
+    - assets/images/icons/icon_backarrow.png
+    - assets/images/icons/icon_mapa_marker.png
+    - assets/images/icons/icon_addtocalendar.png
+    - assets/images/icons/instagram.png
+    - assets/images/icons/facebook.png
+    - assets/images/icons/twitter.png
+    - assets/images/icons/youtube.png
+    - assets/images/icons/link.png
 
 
 

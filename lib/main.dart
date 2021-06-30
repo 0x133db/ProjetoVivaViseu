@@ -1,19 +1,25 @@
 //import 'dart:html';
+
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vivaviseu/config/router.dart';
 import 'package:vivaviseu/config/routes.dart';
-import 'package:vivaviseu/eventdetails.dart';
-import 'package:vivaviseu/home.dart';
-import 'package:vivaviseu/login.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:device_preview/device_preview.dart';
+import 'package:vivaviseu/utils/responsive.dart';
+import 'package:vivaviseu/utils/style.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   initializeDateFormatting().then((_) => runApp(App()));
+  ///Ver noutros dispositivos
+  //runApp(DevicePreview(enabled: true ,builder: (context){return App();}));
 }
 
 class App extends StatefulWidget {
@@ -22,8 +28,8 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-
   _AppState(){
+      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
       final FluroRouter router = FluroRouter();
       Routes.configureRoutes(router);
       Router_.router = router; 
@@ -31,16 +37,16 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    var app = MaterialApp(
+    var app = LayoutBuilder(
+      builder: (context,constraints){
+        SizeConfig().init(constraints);
+        return MaterialApp(
       title: 'Viva Viseu',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        accentColor: Colors.amberAccent,
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+      theme: AppTheme.appTheme,
       onGenerateRoute: Router_.router.generator,
-      //home: HomeScreen(),
+    );
+    }
     );
     return app;
   }

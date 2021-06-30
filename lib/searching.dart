@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:vivaviseu/allevents.dart';
 import 'package:vivaviseu/config/router.dart';
+import 'package:vivaviseu/highlightedevents.dart';
 import 'package:vivaviseu/home.dart';
 import 'package:http/http.dart' as http;
 

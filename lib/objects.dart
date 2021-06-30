@@ -87,7 +87,7 @@ class Event {
     String? dateDetails;
     List<DateElement>? dates;
     List<ImageElement>? images;
-    List<dynamic>? links;
+    List<LinkElement>? links;
 
     factory Event.fromMap(Map<String, dynamic> json) => Event(
         id: json["id"],
@@ -106,7 +106,7 @@ class Event {
         dateDetails: json["date_details"] == null ? null : json["date_details"],
         dates: List<DateElement>.from(json["dates"].map((x) => DateElement.fromMap(x))),
         images: List<ImageElement>.from(json["images"].map((x) => ImageElement.fromMap(x))),
-        links: List<dynamic>.from(json["links"].map((x) => x)),
+        links: List<LinkElement>.from(json["links"].map((x) => LinkElement.fromMap(x))),
     );
 
     Map<String, dynamic> toMap() => {
@@ -154,16 +154,20 @@ class CategoryElement {
 class CategoryCategory {
     CategoryCategory({
         this.name,
+        this.id
     });
 
     String? name;
+    int? id;
 
     factory CategoryCategory.fromMap(Map<String, dynamic> json) => CategoryCategory(
         name: json["name"],
+        id: json["id"],
     );
 
     Map<String, dynamic> toMap() => {
         "name": name,
+        "id": id,
     };
 }
 
@@ -280,5 +284,43 @@ class Organizer {
         "link_instagram": linkInstagram,
         "link_twitter": linkTwitter,
         "image": image,
+    };
+}
+
+
+
+class LinkElement {
+    LinkElement({
+        this.link,
+    });
+
+    LinkLink? link;
+
+    factory LinkElement.fromMap(Map<String, dynamic> json) => LinkElement(
+        link: LinkLink.fromMap(json["link"]),
+    );
+
+    Map<String, dynamic> toMap() => {
+        "link": link!.toMap(),
+    };
+}
+
+class LinkLink {
+    LinkLink({
+        this.link,
+        this.description,
+    });
+
+    String? link;
+    String? description;
+
+    factory LinkLink.fromMap(Map<String, dynamic> json) => LinkLink(
+        link: json["link"],
+        description: json["description"],
+    );
+
+    Map<String, dynamic> toMap() => {
+        "link": link,
+        "description": description,
     };
 }

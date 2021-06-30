@@ -6,6 +6,9 @@ class Routes {
   static String root = "/";
   static String allevents = "/allevents";
   static String eventdetails = "/eventdetails";
+  static String listagemgeral = "/listagemgeral";
+  static String listagemgeralpesquisa = "/listagemgeralpesquisa";
+  static String addeventdevicecalendar = "/addeventdevicecalendar";
   /*static String demoSimple = "/demo";
   static String demoSimpleFixedTrans = "/demo/fixedtrans";
   static String demoFunc = "/demo/func";
@@ -18,7 +21,16 @@ class Routes {
       return;
     });
     router.define(root, handler: rootHandler);
-    router.define(allevents, handler: alleventsHandler, transitionType: TransitionType.inFromLeft);
-    router.define(eventdetails, handler: eventdetailsHandler, transitionType: TransitionType.inFromRight);
+    router.define(allevents,
+        handler: alleventsHandler, transitionType: TransitionType.inFromLeft);
+    router.define(listagemgeral,
+        handler: listagemgeralHandler,
+        transitionType: TransitionType.inFromLeft);
+    router.define(listagemgeralpesquisa,
+        handler: listagemgeralpesquisaHandler,
+        transitionType: TransitionType.inFromLeft);
+    router.define(eventdetails,
+        handler: eventdetailsHandler,
+        transitionType: TransitionType.inFromRight);
   }
 }
