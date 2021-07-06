@@ -12,7 +12,6 @@ import 'package:vivaviseu/utils/category.dart';
 import 'package:vivaviseu/utils/responsive.dart';
 import 'package:vivaviseu/utils/style.dart';
 import 'package:vivaviseu/utils/utils.dart';
-import 'package:link_text/link_text.dart';
 import 'favorites.dart';
 
 class DetalhesEvento extends StatefulWidget {
@@ -180,111 +179,178 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                               ),
                             ),
                             Positioned(
-                                bottom: 1,
+                                bottom: SizeConfig.heightMultiplier! * 0.9,
                                 left: 1,
                                 child: Padding(
                                   padding: EdgeInsets.only(
                                       bottom: SizeConfig.heightMultiplier! * 2,
                                       left: SizeConfig.widthMultiplier! * 7),
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(_event.title!,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline3),
-                                        SizedBox(
-                                          height: constraints.maxHeight / 100,
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            Container(
-                                              //color: Colors.yellow,
-                                              height:
-                                                  SizeConfig.heightMultiplier! *
-                                                      4,
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
-                                                children: [
-                                                  Image.asset(
-                                                    'assets/images/icons/icon_eventdetailscalendar.png',
-                                                    scale: 2.5,
-                                                  ),
-                                                  Image.asset(
-                                                    'assets/images/icons/icon_eventdetailslocation.png',
-                                                    scale: 2.5,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width:
-                                                  SizeConfig.widthMultiplier! *
-                                                      2,
-                                            ),
-                                            Container(
-                                              height:
-                                                  SizeConfig.heightMultiplier! *
-                                                      4,
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
-                                                children: [
-                                                  Text(
-                                                      formatDate(
-                                                              _event
-                                                                  .dates![0]
-                                                                  .date!
-                                                                  .eventDate!,
-                                                              [dd]) +
-                                                          ' de ' +
+                                  child: Container(
+                                    child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(_event.title!,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline3),
+                                          SizedBox(
+                                            height:
+                                                SizeConfig.heightMultiplier!,
+                                          ),
+                                          Container(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    Image.asset(
+                                                      'assets/images/icons/icon_eventdetailscalendar.png',
+                                                      height: SizeConfig
+                                                              .imageSizeMultiplier! *
+                                                          2.4,
+                                                    ),
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: SizeConfig
+                                                                  .widthMultiplier! *
+                                                              1.5,
+                                                          right: SizeConfig
+                                                                  .widthMultiplier! *
+                                                              5.5),
+                                                      child: Text(
                                                           formatDate(
-                                                              _event
-                                                                  .dates![0]
-                                                                  .date!
-                                                                  .eventDate!,
-                                                              [MM],
-                                                              locale:
-                                                                  PortugueseDateLocale()) +
-                                                          ' ' +
+                                                                  _event
+                                                                      .dates![0]
+                                                                      .date!
+                                                                      .eventDate!,
+                                                                  [
+                                                                    dd
+                                                                  ]) +
+                                                              ' de ' +
+                                                              formatDate(
+                                                                  _event
+                                                                      .dates![0]
+                                                                      .date!
+                                                                      .eventDate!,
+                                                                  [MM],
+                                                                  locale:
+                                                                      PortugueseDateLocale()) +
+                                                              ' ' +
+                                                              formatDate(
+                                                                  _event
+                                                                      .dates![0]
+                                                                      .date!
+                                                                      .eventDate!,
+                                                                  [
+                                                                    yyyy
+                                                                  ]),
+                                                          style: Theme.of(context)
+                                                              .textTheme
+                                                              .headline4!
+                                                              .copyWith(fontSize: 1.6 * SizeConfig.textMultiplier!)),
+                                                    ),
+                                                    Image.asset(
+                                                      'assets/images/icons/icon_eventdetailswatch.png',
+                                                      height: SizeConfig
+                                                              .imageSizeMultiplier! *
+                                                          2.4,
+                                                    ),
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: SizeConfig
+                                                                  .widthMultiplier! *
+                                                              1.5,
+                                                          right: SizeConfig
+                                                                  .widthMultiplier! *
+                                                              1),
+                                                      child: Text(
                                                           formatDate(
-                                                              _event
-                                                                  .dates![0]
-                                                                  .date!
-                                                                  .eventDate!,
-                                                              [yyyy]),
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .headline4),
-                                                  Text(_event.location!,
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .headline4),
-                                                ],
-                                              ),
+                                                                  _event
+                                                                      .dates![0]
+                                                                      .date!
+                                                                      .timeStart!,
+                                                                  [
+                                                                    HH
+                                                                  ]) +
+                                                              'h' +
+                                                              formatDate(
+                                                                  _event
+                                                                      .dates![0]
+                                                                      .date!
+                                                                      .timeStart!,
+                                                                  [
+                                                                    nn
+                                                                  ]),
+                                                          style: Theme.of(
+                                                                  context)
+                                                              .textTheme
+                                                              .headline4!
+                                                              .copyWith(
+                                                                  fontSize: 1.6 *
+                                                                      SizeConfig
+                                                                          .textMultiplier!)),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                      top: SizeConfig
+                                                              .heightMultiplier! *
+                                                          0.1),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    children: [
+                                                      Image.asset(
+                                                        'assets/images/icons/icon_eventdetailslocation.png',
+                                                        height: SizeConfig
+                                                                .imageSizeMultiplier! *
+                                                            2.4,
+                                                      ),
+                                                      Padding(
+                                                        padding: EdgeInsets.only(
+                                                            left: SizeConfig
+                                                                    .widthMultiplier! *
+                                                                1.5,
+                                                            right: SizeConfig
+                                                                    .widthMultiplier! *
+                                                                1),
+                                                        child: Text(
+                                                            _event.location!,
+                                                            style: Theme.of(
+                                                                    context)
+                                                                .textTheme
+                                                                .headline4!
+                                                                .copyWith(
+                                                                    fontSize: 1.6 *
+                                                                        SizeConfig
+                                                                            .textMultiplier!)),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
                                             ),
-                                            ///////////////////////
-                                            SizedBox(
-                                              width:
-                                                  SizeConfig.widthMultiplier! *
-                                                      2,
-                                            ),
-                                            Container(
-                                                height: SizeConfig
-                                                        .heightMultiplier! *
-                                                    4,
+                                          )
+                                          /*Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Container(
+                                                //color: Colors.yellow,
+                                                height:
+                                                    SizeConfig.heightMultiplier! *
+                                                        4,
                                                 child: Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
@@ -293,21 +359,25 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                                           .spaceAround,
                                                   children: [
                                                     Image.asset(
-                                                      'assets/images/icons/icon_eventdetailswatch.png',
+                                                      'assets/images/icons/icon_eventdetailscalendar.png',
                                                       scale: 2.5,
                                                     ),
-                                                    Text('  '),
+                                                    Image.asset(
+                                                      'assets/images/icons/icon_eventdetailslocation.png',
+                                                      scale: 2.5,
+                                                    ),
                                                   ],
-                                                )),
-                                            SizedBox(
-                                              width:
-                                                  SizeConfig.widthMultiplier! *
-                                                      2,
-                                            ),
-                                            Container(
-                                                height: SizeConfig
-                                                        .heightMultiplier! *
-                                                    4,
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width:
+                                                    SizeConfig.widthMultiplier! *
+                                                        2,
+                                              ),
+                                              Container(
+                                                height:
+                                                    SizeConfig.heightMultiplier! *
+                                                        4,
                                                 child: Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
@@ -320,24 +390,99 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                                                 _event
                                                                     .dates![0]
                                                                     .date!
-                                                                    .timeStart!,
-                                                                [HH]) +
-                                                            'h' +
+                                                                    .eventDate!,
+                                                                [dd]) +
+                                                            ' de ' +
                                                             formatDate(
                                                                 _event
                                                                     .dates![0]
                                                                     .date!
-                                                                    .timeStart!,
-                                                                [nn]),
+                                                                    .eventDate!,
+                                                                [MM],
+                                                                locale:
+                                                                    PortugueseDateLocale()) +
+                                                            ' ' +
+                                                            formatDate(
+                                                                _event
+                                                                    .dates![0]
+                                                                    .date!
+                                                                    .eventDate!,
+                                                                [yyyy]),
                                                         style: Theme.of(context)
                                                             .textTheme
                                                             .headline4),
-                                                    Text('  '),
+                                                    Text(_event.location!,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .headline4),
                                                   ],
-                                                )),
-                                          ],
-                                        ),
-                                      ]),
+                                                ),
+                                              ),
+                                              ///////////////////////
+                                              SizedBox(
+                                                width:
+                                                    SizeConfig.widthMultiplier! *
+                                                        2,
+                                              ),
+                                              Container(
+                                                  height: SizeConfig
+                                                          .heightMultiplier! *
+                                                      4,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceAround,
+                                                    children: [
+                                                      Image.asset(
+                                                        'assets/images/icons/icon_eventdetailswatch.png',
+                                                        scale: 2.5,
+                                                      ),
+                                                      Text('  '),
+                                                    ],
+                                                  )),
+                                              SizedBox(
+                                                width:
+                                                    SizeConfig.widthMultiplier! *
+                                                        2,
+                                              ),
+                                              Container(
+                                                  height: SizeConfig
+                                                          .heightMultiplier! *
+                                                      4,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceAround,
+                                                    children: [
+                                                      Text(
+                                                          formatDate(
+                                                                  _event
+                                                                      .dates![0]
+                                                                      .date!
+                                                                      .timeStart!,
+                                                                  [HH]) +
+                                                              'h' +
+                                                              formatDate(
+                                                                  _event
+                                                                      .dates![0]
+                                                                      .date!
+                                                                      .timeStart!,
+                                                                  [nn]),
+                                                          style: Theme.of(context)
+                                                              .textTheme
+                                                              .headline4),
+                                                      Text('  '),
+                                                    ],
+                                                  )),
+                                            ],
+                                          ),
+                                        */
+                                        ]),
+                                  ),
                                 ))
                           ]),
                           Padding(
@@ -450,7 +595,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                 bottom: SizeConfig.widthMultiplier! * 2),
                             child: Container(
                               height:
-                                  SizeConfig.heightMultiplier! * 10, //alterar
+                                  SizeConfig.heightMultiplier! * 6.5, //alterar
                               width: SizeConfig.maxWidth,
                               child: Row(
                                 children: [
@@ -464,7 +609,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                   Padding(
                                     padding: EdgeInsets.only(
                                         left:
-                                            SizeConfig.widthMultiplier! * 1.5),
+                                            SizeConfig.widthMultiplier! * 3),
                                     child: Text(
                                       _event.organizer!.name!,
                                       style:
@@ -477,9 +622,10 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                           ),
                           Padding(
                             padding: EdgeInsets.only(
-                                top: SizeConfig.heightMultiplier! * 2,
-                                left: SizeConfig.widthMultiplier! * 7,
-                                right: SizeConfig.widthMultiplier! * 7),
+                              top: SizeConfig.heightMultiplier! * 2,
+                              left: SizeConfig.widthMultiplier! * 7,
+                              right: SizeConfig.widthMultiplier! * 7,
+                            ),
                             child: Text("Links",
                                 style: Theme.of(context).textTheme.headline3),
                           ),
@@ -488,48 +634,135 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                 top: SizeConfig.heightMultiplier! * 1.3,
                                 left: SizeConfig.widthMultiplier! * 7,
                                 right: SizeConfig.widthMultiplier! * 7,
+                                bottom: SizeConfig.heightMultiplier! * 2,
+                                ),
+                            child: Container(
+                                height: SizeConfig.heightMultiplier! * 10,
+                                width: SizeConfig.maxWidth,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Flexible(
+                                      flex: 1,
+                                      fit: FlexFit.loose,
+                                      child: ListView.builder(
+                                          scrollDirection: Axis.vertical,
+                                          shrinkWrap: true,
+                                          reverse: true,
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
+                                          itemCount: linkList.length,
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            var categoryname = _event
+                                                .categories![index]
+                                                .category!
+                                                .name!;
+                                            return Padding(
+                                                padding: EdgeInsets.only(
+                                                    right: SizeConfig
+                                                            .widthMultiplier! *
+                                                        3),
+                                                child: Links(text: linkList[index])
+                                                /*CategoryWidget(context,
+                                                      categorytext: categoryname),*/
+                                                );
+                                          }),
+                                    ),
+                                    Flexible(
+                                      flex: 1,
+                                      child: Container(
+                                        color: Colors.black,
+                                        height:
+                                            SizeConfig.heightMultiplier! * 10,
+                                      ),
+                                    )
+                                  ],
+                                )),
+                          ),
+                          /*Container(
+                                        color: Colors.blue,
+                                        height: SizeConfig.heightMultiplier! * 3,
+                                        width: SizeConfig.maxWidth,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Expanded(
+                                              child: Image.asset(
+                                                iconpath,
+                                                height:
+                                                    SizeConfig.heightMultiplier! *
+                                                        2.9,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width:
+                                                  SizeConfig.widthMultiplier! * 2,
+                                            ),
+                                            Expanded(
+                                              child: Text(
+                                                linkList[index],
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .headline4,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );*/
+                          /*Padding(
+                            padding: EdgeInsets.only(
+                                //top: SizeConfig.heightMultiplier! * 1.3,
+                                left: SizeConfig.widthMultiplier! * 7,
+                                right: SizeConfig.widthMultiplier! * 7,
                                 bottom: SizeConfig.widthMultiplier! * 2),
                             child: Container(
-                              height: 200,
                               width: SizeConfig.maxWidth,
                               child: ListView.builder(
-                                  physics: NeverScrollableScrollPhysics(),
                                   itemCount: linkList.length,
                                   itemBuilder: (context, index) {
                                     final uri = Uri.parse(linkList[index]);
                                     String iconpath = getIconPath(uri);
-                                    print('Uri -> $uri');
-                                    print('Uri Host -> ${uri.host}');
-                                    print('Uri $iconpath');
                                     return Padding(
-                                      padding: EdgeInsets.only(top: SizeConfig.heightMultiplier! * 0.5, bottom: SizeConfig.heightMultiplier! * 0.5),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Image.asset(
-                                            iconpath,
-                                            height: SizeConfig.heightMultiplier! *
-                                                2.9,
-                                          ),
-                                          SizedBox(
-                                            width:
-                                                SizeConfig.widthMultiplier! * 2,
-                                          ),
-                                          Text(
-                                            linkList[index],
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline4,
-                                          ),
-                                        ],
+                                      padding: EdgeInsets.only(
+                                          top: SizeConfig.heightMultiplier! * 0.5,
+                                          bottom:
+                                              SizeConfig.heightMultiplier! * 0.5),
+                                      child: Container(
+                                        color: Colors.blue,
+                                        width: SizeConfig.maxWidth,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Image.asset(
+                                              iconpath,
+                                              height:
+                                                  SizeConfig.heightMultiplier! *
+                                                      2.9,
+                                            ),
+                                            SizedBox(
+                                              width:
+                                                  SizeConfig.widthMultiplier! * 2,
+                                            ),
+                                            Text(
+                                              linkList[index],
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline4,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     );
                                   }),
                             ),
-                          ),
+                          ),*/
                           Container(
                             height: constraints.maxHeight * 0.5,
                             width: constraints.maxWidth,
@@ -538,15 +771,8 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                       ),
                     ),
                   ),
-                  floatingActionButton: //GestureDetector(onTap:() {
-                      //var result = await _deviceCalendarPlugin.createCalendar('teste', localAccountName: 'André',);
-                      /*var result = await _deviceCalendarPlugin.createOrUpdateEvent(dc.Event(id: _event.id, ));
-                    if(result.isSuccess){
-                      Navigator.pop(context,true);
-                      print('Deu');
-                    }*/
-                      //print('Add To Calendar');
-                      /*},child:*/ FloatingAddCalendarButton(event: _event),
+                  floatingActionButton:
+                      FloatingAddCalendarButton(event: _event),
                   floatingActionButtonLocation:
                       FloatingActionButtonLocation.centerFloat,
                 );
@@ -705,5 +931,46 @@ class _IconFavoritoDetalhesState extends State<IconFavoritoDetalhes> {
                 : widget.userPref.addFavorito(widget.event.id!);
           });
         });
+  }
+}
+
+class Links extends StatelessWidget {
+  final String text;
+  const Links({Key? key, required this.text}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final uri = Uri.parse(text);
+    String iconpath = getIconPath(uri);
+    return Padding(
+      padding: EdgeInsets.only(
+                                          top: SizeConfig.heightMultiplier! * 0.5,
+                                          bottom:
+                                              SizeConfig.heightMultiplier! * 0.5),
+      child: Container(
+        //color: Colors.yellow,
+        //height: SizeConfig.heightMultiplier! * 5,
+        width: SizeConfig.maxWidth,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(right: SizeConfig.heightMultiplier!),
+              child: Image.asset(
+                iconpath,
+                height: SizeConfig.heightMultiplier! * 2.9,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                text,
+                style: Theme.of(context).textTheme.headline4,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

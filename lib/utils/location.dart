@@ -7,7 +7,6 @@ class AppLocation{
 
   AppLocation(){
     tzdata.initializeTimeZones();
-    //this._applocation = tz.getLocation('Europe/Lisbon');
     Map<String,tz.Location> locations = tz.timeZoneDatabase.locations;
     String local = 'Europe/Lisbon';
     this._applocation = locations[local];

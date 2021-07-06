@@ -45,7 +45,7 @@ dependencies:
   device_calendar: ^4.0.1-dev.13167
   timezone: ^0.7.0
   quiver: ^3.0.1 #numero de dias de um mes
-  link_text: ^0.2.0 #hiperligaçoes
+  connectivity: ^3.0.6 #conectividade
 
 
   # The following adds the Cupertino Icons font to your application.

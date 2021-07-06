@@ -41,14 +41,22 @@ class _CalendarState extends State<Calendar> {
     Uri eventosapiUrl =
         Uri.parse("http://vivaviseu.projectbox.pt/api/v1/events");
     print('Link utilizado para Construir Mapa de Eventos: $eventosapiUrl');
-    var res = await http.get(eventosapiUrl);
+    var res;
+    try{    res = await http.get(eventosapiUrl);      }on PlatformException catch (e){
+        print(e.toString());
+                return;
+      }on Exception catch(e){
+        print(e.toString());
+                return;
+      }
+    try{
     if (res.statusCode == 200) {
       Map<String, dynamic> body = json.decode(res.body);
       Welcome Data = Welcome.fromMap(body);
+      if(Data.result != null){
       print("Numero de Eventos Total: ${Data.result!.length}");
       int i;
       for (i = 0; i < Data.result!.length; i++) {
-        //new code teste
         if (Data.result![i].event!.hasRecurringDates == true) {
           for (int x = 0; x < Data.result![i].event!.dates!.length; x++) {
             var date = Data.result![i].event!.dates![x].date!.eventDate;
@@ -81,19 +89,12 @@ class _CalendarState extends State<Calendar> {
             date = date.add(Duration(days: 1));
           }
         }
-        //end new code test
-        /*var date = Data.result![i].event!.dates![0].date!.eventDate;
-        Event event = Data.result![i].event!;
-        if (mapaeventos[date!] == null) {
-          mapaeventos[date] = [];
-        }
-        if (mapaeventos[date]!.contains(event.id)) {
-          return;
-        } else {
-          mapaeventos[date]!.add(event);
-        }*/
       }
       print('$mapaeventos');
+      return;
+    }
+    }}on Exception catch(e){
+      print(e.toString());
       return;
     }
   }
@@ -157,7 +158,7 @@ class _CalendarState extends State<Calendar> {
                       child: Column(
                         children: [
                           Flexible(
-                            flex: 3,
+                            flex: 6,
                             child: FittedBox(
                               fit: BoxFit.fitHeight,
                               child: CalendarTest(
@@ -166,7 +167,8 @@ class _CalendarState extends State<Calendar> {
                             ),
                           ),
                           Expanded(
-                            flex: 2,
+                            flex: 6,
+                            
                             child: Padding(
                               padding: EdgeInsets.only(
                                   top: 3 * SizeConfig.heightMultiplier!),
@@ -287,7 +289,8 @@ class _CalendarTestState extends State<CalendarTest> {
           startingDayOfWeek: StartingDayOfWeek.monday,
           focusedDay: _focusedDay,
           sixWeekMonthsEnforced: true,
-          rowHeight: SizeConfig.heightMultiplier! * 4.9,
+          //rowHeight: SizeConfig.heightMultiplier! * 4.9,
+          rowHeight: SizeConfig.heightMultiplier! * 5.1,
           shouldFillViewport: true,
           //estilo cores
           //
@@ -311,7 +314,7 @@ class _CalendarTestState extends State<CalendarTest> {
                 date, [MM, " ", yyyy],
                 locale: PortugueseDateLocale()),
             titleTextStyle: Theme.of(context).textTheme.headline2!.copyWith(
-                fontSize: 1.7 * SizeConfig.textMultiplier!,
+                fontSize: 2 * SizeConfig.textMultiplier!,
                 fontWeight: FontWeight.bold),
             formatButtonVisible: false,
             leftChevronIcon: Image.asset(
@@ -344,7 +347,7 @@ class _CalendarTestState extends State<CalendarTest> {
             weekendTextStyle: TextStyle(color: Colors.white),
             defaultTextStyle: TextStyle(color: Colors.white),
             markersMaxCount: 4,
-            //markerMargin: EdgeInsets.symmetric(horizontal: 0),
+            markerMargin: EdgeInsets.only(top: SizeConfig.heightMultiplier! * 0.5),
             markersAlignment: Alignment.bottomCenter,
             canMarkersOverflow: false,
             markerDecoration: BoxDecoration(
@@ -352,10 +355,13 @@ class _CalendarTestState extends State<CalendarTest> {
               shape: BoxShape.circle,
             ),
             selectedDecoration: BoxDecoration(
+              //borderRadius: BorderRadius.circular(100),
               color: Color.fromRGBO(233, 168, 3, 1),
               shape: BoxShape.circle,
             ),
-            markerSizeScale: 0.1,
+            //markerSizeScale: 0.1,
+            markerSize: 5,
+            //markersAutoAligned: true,
           ),
           eventLoader: _getEventsForDay,
           selectedDayPredicate: (selectedDay) {
@@ -406,7 +412,7 @@ class _EventsDayListState extends State<EventsDayList> {
     }
     Uri eventosdiaurl = Uri.parse(url);
     print('Link utilizado para Eventos Favoritos: $eventosdiaurl');
-    var resposta = await http.get(eventosdiaurl);
+    var resposta = await http.get(eventosdiaurl);//trycatch
     Welcome Data = new Welcome();
     if (resposta.statusCode == 200) {
       Map<String, dynamic> body = json.decode(resposta.body);
@@ -429,70 +435,73 @@ class _EventsDayListState extends State<EventsDayList> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        height: 300,
-        //color: Colors.black,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          dragStartBehavior: DragStartBehavior.start,
-          child: FutureBuilder(
-              future: loadEventsFromDay(widget.listaEvent!),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.none:
-                    return Container(
-                      height: 300,
-                      child: Center(child: CircularProgressIndicator()),
+    return FutureBuilder(
+        future: loadEventsFromDay(widget.listaEvent!),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+              return Container(
+                height: 500,
+                color: Colors.green,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            case ConnectionState.waiting:
+              return Container(
+                height: 500,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            case ConnectionState.active:
+              return Container(
+                height: 500,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            case ConnectionState.done:
+              return ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  physics: AlwaysScrollableScrollPhysics(),
+                  shrinkWrap: false,
+                  itemCount: numeroeventos,
+                  itemBuilder: (BuildContext context, int index) {
+                    var event = snapshot.data[index];
+                    var title = event.title;
+                    var eventoid = event.id;
+                    var location = event.location;
+                    var timeStart = event.dates[0].date.timeStart;
+                    var eventdate = event.dates[0].date.eventDate;
+                    var image =
+                        'http://${event.images[0].image.thumbnail}';
+                    UserPreferences teste = widget.teste;
+                    List<String> listcateg = [];
+                    int numcateg = event.categories.length;
+                    for (var i = 0; i < numcateg; i++) {
+                      listcateg.add(event.categories[i].category.name);
+                    }
+                    return Padding(
+                      padding: EdgeInsets.only(bottom: SizeConfig.heightMultiplier! * 2),
+                      child: GestureDetector(
+                        onTap: (){
+                                                  Router_.router.navigateTo(context,
+                                      '/eventdetails?eventoid=$eventoid');
+                        },
+                        child: WidgetImagemDetalhesEventos(
+                          evento: event,
+                          listacategorias: listcateg,
+                          userPreferences: userpref,
+                        ),
+                      ),
                     );
-                  case ConnectionState.waiting:
-                    return Container(
-                      height: 300,
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  case ConnectionState.active:
-                    return Container(
-                      height: 300,
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  case ConnectionState.done:
-                    return Container(
-                      height: SizeConfig.maxHeight,
-                      child: ListView.builder(
-                          itemCount: numeroeventos,
-                          itemBuilder: (BuildContext context, int index) {
-                            var event = snapshot.data[index];
-                            var title = event.title;
-                            var eventoid = event.id;
-                            var location = event.location;
-                            var timeStart = event.dates[0].date.timeStart;
-                            var eventdate = event.dates[0].date.eventDate;
-                            var image =
-                                'http://${event.images[0].image.thumbnail}';
-                            UserPreferences teste = widget.teste;
-                            List<String> listcateg = [];
-                            int numcateg = event.categories.length;
-                            for (var i = 0; i < numcateg; i++) {
-                              listcateg.add(event.categories[i].category.name);
-                            }
-                            return WidgetImagemDetalhesEventos(
-                              evento: event,
-                              listacategorias: listcateg,
-                              userPreferences: userpref,
-                            );
-                            /*EventContainerCalendar(
-                                teste: teste,
-                                image: image,
-                                title: title,
-                                location: location,
-                                id: eventoid,
-                                timeStart: timeStart,
-                                eventdate: eventdate,
-                                categorylist: listcateg);*/
-                          }),
-                    );
-                }
-              }),
-        ));
+                    /*EventContainerCalendar(
+                        teste: teste,
+                        image: image,
+                        title: title,
+                        location: location,
+                        id: eventoid,
+                        timeStart: timeStart,
+                        eventdate: eventdate,
+                        categorylist: listcateg);*/
+                  });
+          }
+        });
   }
 }
 

@@ -4,7 +4,7 @@ import 'package:vivaviseu/config/router.dart';
 import 'package:vivaviseu/utils/responsive.dart';
 
 
-class GroupButtons{
+/*class GroupButtons{
   int? selectedCategory = 999;
 
   GroupButtons();
@@ -25,6 +25,34 @@ class GroupButtons{
     return num == this.selectedCategory;
   }
 
+}*/
+
+class GroupButtons{
+  int? selectedCategory = 999;
+
+  GroupButtons();
+
+  setSelected(int selectedCat){
+    if(this.selectedCategory == selectedCat){
+      removeSelected();
+      return;
+    }else{
+      this.selectedCategory = selectedCat;
+      return;
+    }
+  }
+
+  getSelected(){
+    return this.selectedCategory;
+  }
+
+  removeSelected(){
+    this.selectedCategory = 999;
+  }
+
+  bool isSelected(int num){
+    return num == this.selectedCategory;
+  }
 }
 
 
@@ -52,6 +80,7 @@ class _CategoryTabState extends State<CategoryTab> {
   @override
   void initState() {
     if(widget.preselected != null){
+      if(widget.preselected != selected)
       selected = widget.preselected!;
     }
   }
@@ -82,12 +111,18 @@ class _CategoryTabState extends State<CategoryTab> {
               ))),
           onPressed: () {
             setState(() {
-              if(widget.buttons.getSelected() == widget.id){
+              /*if(widget.buttons.getSelected() == widget.id){
                 widget.buttons.removeSelected();
-              }
+              }*/
               widget.buttons.setSelected(widget.id!);
-              widget.selected(widget.id!);
-            print('Selected Category id: ${widget.id}');
+              if(widget.buttons.isSelected(widget.id!)){
+                print('Selected Category id: ${widget.id}');
+                widget.selected(widget.buttons.getSelected());
+                return;
+              }else{
+                widget.selected(widget.buttons.getSelected());
+                return;
+              }
             });
           },
         ),
@@ -142,6 +177,45 @@ class _CategoryTabSimple extends State<CategoryTabSimple> {
           onPressed: () {
             print('Selected Category: ${widget.id} e selected = $selected');
                        Router_.router.navigateTo(context, '/listagemgeral?categoryid=${widget.id}');
+          },
+        ),
+      ),
+    );
+  }
+}
+
+
+class CategoryTabSimpleNoNetwork extends StatefulWidget {
+  const CategoryTabSimpleNoNetwork({
+    Key? key,
+  }) : super(key: key);
+  @override
+  _CategoryTabSimpleNoNetwork createState() => _CategoryTabSimpleNoNetwork();
+}
+
+class _CategoryTabSimpleNoNetwork extends State<CategoryTabSimpleNoNetwork> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 32 * SizeConfig.widthMultiplier!,
+      height: 4 * SizeConfig.heightMultiplier!,
+      child: ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(15)),
+        child: TextButton(
+          child: Text('Arte',
+              style: Theme.of(context)
+                  .textTheme
+                  .headline4!
+                  .copyWith(fontSize: SizeConfig.textMultiplier! * 1.5, color: Color.fromRGBO(47, 59, 76,1))),
+          style: ButtonStyle(
+              backgroundColor:MaterialStateProperty.all<Color>(
+                      Color.fromARGB(255, 47, 59, 76)),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(2.1 * SizeConfig.heightMultiplier!),
+              ))),
+          onPressed: () {
           },
         ),
       ),

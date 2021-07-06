@@ -71,6 +71,7 @@ class _ListagemGeralState extends State<ListagemGeral> {
       inhcategoryid = widget.categoryid!;
       print('Listar categoria $inhcategoryid');
       Buttons.setSelected(inhcategoryid);
+      //categorychange.value = Buttons.getSelected();
       parentchange(inhcategoryid);
     }
     if (widget.searchtext != null) {
@@ -172,6 +173,15 @@ class _ListagemGeralState extends State<ListagemGeral> {
                         submitSearch(value);
                       },
                       onTypingFinished: (value) => print('Pesquisa ? $value'),
+                      onTap: (){
+                        setState(() {
+                                                               Buttons.removeSelected();
+                                                                    searchsearch = false;
+                                  categorysearch = false;
+                                  tobsearched = 'Pesquisar';                     
+                                                });
+                                  //categorychange.value = Buttons.getSelected();
+                      },
                     ),
                   ),
                 ),
@@ -262,22 +272,71 @@ class _WidgetListaCategoriasState extends State<WidgetListaCategorias> {
 
   void iniState() {
     super.initState();
+    if(widget.alreadyselected != null){
+      if(selectedcategory != widget.buttons.getSelected())
+      selectedcategory = widget.alreadyselected!;
+    }
   }
 
-  void listController(int categoryid) {
-    if (widget.buttons.getSelected() == selectedcategory) {
+  /*void listController(int categoryid) {
+    //teste
+    //selectedcategory = categoryid;
+    //
+
+    // if (widget.buttons.getSelected() == selectedcategory) {
+    if (widget.buttons.getSelected() == categoryid) {
       setState(() {
         print('Des selecionei categoria $categoryid!');
         widget.buttons.removeSelected();
         selectedcategory = widget.buttons.getSelected();
         widget.selectedCategory(categoryid);
+        return;
       });
     } else {
       setState(() {
         print('Selecionei categoria $categoryid!');
         selectedcategory = widget.buttons.getSelected();
-        //Buttons.removeSelected();
+        //widget.buttons.removeSelected();
         widget.selectedCategory(selectedcategory);
+        return;
+      });
+    }
+  }*/
+
+    void listController(int categoryid) {
+    //teste
+    //selectedcategory = categoryid;
+    //
+
+    if(categoryid != 999){
+      setState(() {
+              selectedcategory = categoryid;
+              widget.selectedCategory(selectedcategory);
+            });
+            return;
+    }else{
+      setState(() {
+              selectedcategory = categoryid;
+              widget.selectedCategory(selectedcategory);
+            });
+    }
+
+    // if (widget.buttons.getSelected() == selectedcategory) {
+    if (widget.buttons.getSelected() == categoryid) {
+      setState(() {
+        print('Des selecionei categoria $categoryid!');
+        widget.buttons.removeSelected();
+        selectedcategory = widget.buttons.getSelected();
+        widget.selectedCategory(categoryid);
+        return;
+      });
+    } else {
+      setState(() {
+        print('Selecionei categoria $categoryid!');
+        selectedcategory = widget.buttons.getSelected();
+        //widget.buttons.removeSelected();
+        widget.selectedCategory(selectedcategory);
+        return;
       });
     }
   }
@@ -360,7 +419,6 @@ class _WidgetListaCategoriasState extends State<WidgetListaCategorias> {
                                 preselected: selectedcategory == categoryid
                                     ? true
                                     : false,
-                                //preselected: //categoryid == value ? true : false,
                                 selected: listController,
                                 buttons: widget.buttons,
                               ));
@@ -478,7 +536,7 @@ class _ListagemtodoseventosState extends State<Listagemtodoseventos> {
   late UserPreferences up;
 
   Future<List<Event>?> loadData() async {
-    if(eventosalistar.isNotEmpty){eventosalistar.clear();}
+    eventosalistar.clear();
     up = await UserPreferences();
     Uri eventosapiUrl =
         Uri.parse("http://vivaviseu.projectbox.pt/api/v1/events/");
@@ -549,65 +607,6 @@ class _ListagemtodoseventosState extends State<Listagemtodoseventos> {
                   child: Center(child: CircularProgressIndicator()));
           }
         },
-      ),
-    );
-  }
-}
-
-class CategoryWidget2 extends StatelessWidget {
-  const CategoryWidget2(
-    BuildContext context, {
-    Key? key,
-    required this.categorytext,
-  }) : super(key: key);
-
-  final String? categorytext;
-
-  @override
-  Widget build(BuildContext context) {
-    return FittedBox(
-      fit: BoxFit.cover,
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-            color: Color.fromRGBO(233, 168, 3, 1),
-            borderRadius: BorderRadius.all(Radius.circular(10))),
-        child: Center(
-          child: Text(
-            categorytext!,
-            style: TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w400, fontSize: 11),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class Categoryplus2Widget extends StatelessWidget {
-  const Categoryplus2Widget(
-    BuildContext context, {
-    Key? key,
-    required this.categorytext,
-  }) : super(key: key);
-
-  final String categorytext;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.068,
-      height: MediaQuery.of(context).size.height * 0.023,
-      decoration: BoxDecoration(
-          color: Color.fromRGBO(233, 168, 3, 1),
-          borderRadius: BorderRadius.all(Radius.circular(10))),
-      child: Center(
-        child: Text(
-          categorytext,
-          style: TextStyle(
-              color: Colors.white, fontWeight: FontWeight.w400, fontSize: 11),
-        ),
       ),
     );
   }

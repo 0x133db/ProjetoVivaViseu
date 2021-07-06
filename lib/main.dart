@@ -51,36 +51,3 @@ class _AppState extends State<App> {
     return app;
   }
 }
-
-//Teste Firebase
-/*class Home extends StatelessWidget {
-  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        body: FutureBuilder(
-            future: _initialization,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Scaffold(
-                  body: Center(
-                    child: Text('Erro!'),
-                  ),
-                );
-              }
-              if (snapshot.connectionState == ConnectionState.done) {
-                String result = 'Sucesso!',
-                return Scaffold(
-                  body: Center(
-                    child: Text('Sucesso!'),
-                  ),
-                );
-              }
-              return Scaffold(
-                body: Center(
-                  child: Text('Loading!'),
-                ),
-              );
-            }));
-  }
-}*/

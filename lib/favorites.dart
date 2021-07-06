@@ -1,11 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 import 'dart:async';
+import 'package:connectivity/connectivity.dart';
 
 import 'package:date_format/date_format.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vivaviseu/config/router.dart';
 import 'package:vivaviseu/objects.dart';
@@ -20,26 +23,93 @@ class Favorites extends StatefulWidget {
 }
 
 class _FavoritesState extends State<Favorites> {
-  late SharedPreferences userpreferences;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  late bool _connectionStatus;
+  late ConnectivityResult _connectivityResult = ConnectivityResult.none;
+  bool erros = false;
   List<String>? eventosFavoritos = [];
   List<Event?> eventosFavLista = [];
   String url = '';
   int numerofavoritos = 0;
-  ///////
   late UserPreferences up;
-
-  ///
 
   @override
   void initState() {
     print('[---------- Página Favoritos ----------]');
     super.initState();
+    initConnectivity();
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    switch (result) {
+      case ConnectivityResult.wifi:
+        if (!mounted) {
+          break;
+        }
+        setState(() {
+          setState(() => _connectionStatus = true);
+          print(_connectionStatus);
+        });
+        break;
+      case ConnectivityResult.mobile:
+        if (!mounted) {
+          break;
+        }
+        setState(() {
+          setState(() => _connectionStatus = true);
+          print(_connectionStatus);
+        });
+        break;
+      case ConnectivityResult.none:
+        if (!mounted) {
+          break;
+        }
+        setState(() => _connectionStatus = false);
+        print(_connectionStatus);
+        break;
+      default:
+        if (!mounted) {
+          break;
+        }
+        ;
+        setState(() => _connectionStatus = false);
+        print(_connectionStatus);
+        break;
+    }
+  }
+
+  Future<void> initConnectivity() async {
+    _connectionStatus = true;
+    try {
+      _connectivityResult = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      print(e.toString());
+      _connectionStatus = false;
+      return;
+    }
+    _connectionStatus = true;
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(_connectivityResult);
   }
 
   //get events from user favorites and gets them from api
   Future<List<Event?>?> loadFavorites() async {
     print('Loading Users Favorites Events ...');
     up = await UserPreferences();
+    eventosFavoritos!.clear();
+    eventosFavLista.clear();
     eventosFavoritos = up.getFavoritos();
     String url = 'http://vivaviseu.projectbox.pt/api/v1/events?event_list=';
     for (var i = 0; i < eventosFavoritos!.length; i++) {
@@ -49,28 +119,59 @@ class _FavoritesState extends State<Favorites> {
     }
     numerofavoritos = eventosFavoritos!.length;
     if (url == 'http://vivaviseu.projectbox.pt/api/v1/events?event_list=') {
-      return null;
+      return eventosFavLista;
     }
-    Uri eventosfavoritosurl = Uri.parse(url);
-    print('Link utilizado para Eventos Favoritos: $eventosfavoritosurl');
-    var resposta = await http.get(eventosfavoritosurl);
-    Welcome Data = new Welcome();
-    if (resposta.statusCode == 200) {
-      Map<String, dynamic> body = json.decode(resposta.body);
-      Data = Welcome.fromMap(body);
-    }
-    if (Data.result!.length > 0) {
-      for (var i = 0; i < Data.result!.length; i++) {
-        eventosFavLista.add(Data.result![i].event);
+    if (_connectivityResult != ConnectivityResult.none) {
+      Uri eventosfavoritosurl = Uri.parse(url);
+      print('Conexão $_connectionStatus');
+      print('Link utilizado para Eventos Favoritos: $eventosfavoritosurl');
+      var resposta;
+      try {
+        resposta = await http.get(eventosfavoritosurl);
+      } on PlatformException catch (e) {
+        print(e.toString());
+        erros = true;
+        return eventosFavLista;
+      } on Exception catch (e) {
+        print(e.toString());
+        erros = true;
+        return eventosFavLista;
       }
+      Welcome Data = new Welcome();
+      try {
+        if (resposta.statusCode == 200) {
+          Map<String, dynamic> body = json.decode(resposta.body);
+          Data = Welcome.fromMap(body);
+        }
+        if (Data.result != null) {
+          if (Data.result!.length > 0) {
+            for (var i = 0; i < Data.result!.length; i++) {
+              eventosFavLista.add(Data.result![i].event);
+            }
+          }
+        }
+        orderListEvents(eventosFavLista);
+        return eventosFavLista;
+      } on Exception catch (e) {
+        print(e.toString());
+        return eventosFavLista;
+      }
+      /*if (resposta.statusCode == 200) {
+        Map<String, dynamic> body = json.decode(resposta.body);
+        Data = Welcome.fromMap(body);
+      }
+      if (Data.result!.isNotEmpty && Data.result!.length > 0) {
+        for (var i = 0; i < Data.result!.length; i++) {
+          eventosFavLista.add(Data.result![i].event);
+        }*/
     }
-    orderListEvents(eventosFavLista);
-    return eventosFavLista;
+    //orderListEvents(eventosFavLista);
+    //}
+    //return eventosFavLista;
   }
 
   @override
   Widget build(BuildContext context) {
-    eventosFavLista.clear();
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 34, 42, 54),
         body: SafeArea(
@@ -90,78 +191,94 @@ class _FavoritesState extends State<Favorites> {
                     'Favoritos',
                     style: Theme.of(context).textTheme.headline1,
                   ),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                          top: SizeConfig.heightMultiplier! * 5),
-                      child: FutureBuilder(
-                          future: loadFavorites(),
-                          builder:
-                              (BuildContext context, AsyncSnapshot snapshot) {
-                            switch (snapshot.connectionState) {
-                              case ConnectionState.none:
-                                return Container(
-                                  child: Center(
-                                      child: CircularProgressIndicator()),
-                                );
-                              case ConnectionState.done:
-                                if (eventosFavLista.length == 0) {
-                                  return Container(
-                                    child: Center(
-                                      child: Text(
-                                        'Nao existem eventos favoritos',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w400),
-                                      ),
-                                    ),
-                                  );
-                                }
-                                return Container(
-                                  height: SizeConfig.maxHeight,
-                                  width: SizeConfig.maxWidth,
-                                  child: ListView.builder(
-                                      scrollDirection: Axis.vertical,
-                                      physics: ClampingScrollPhysics(),
-                                      itemCount: eventosFavLista.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        var event = snapshot.data[index];
-                                        var title =
-                                            snapshot.data[index].title;
-                                        var eventid = snapshot.data[index].id;
-                                        var location =
-                                            snapshot.data[index].location;
-                                        var timeStart = snapshot.data[index]
-                                            .dates[0].date.timeStart;
-                                        var eventdate = snapshot.data[index]
-                                            .dates[0].date.eventDate;
-                                        var image =
-                                            'http://${snapshot.data[index].images[0].image.thumbnail}';
-                                        List<String?> listcateg = [];
-                                        int numcateg = snapshot
-                                            .data[index].categories.length;
-                                        for (var i = 0; i < numcateg; i++) {
-                                          listcateg.add(snapshot.data[index]
-                                              .categories[i].category.name);
-                                        }
-                                        bool imagebool = true;
-                                        index == numerofavoritos - 1
-                                            ? imagebool = false
-                                            : imagebool = true;
-                                        return GestureDetector(
-                                          onTap: () {
-                                            Router_.router.navigateTo(context,
-                                                '/eventdetails?eventoid=$eventid');
-                                          },
-                                          child: WidgetContainerEventos(
-                                            evento: event,
-                                            userPreferences: up,
-                                            listacategorias: listcateg,
-                                            imagebool: imagebool,
+                  _connectionStatus == true && erros == false
+                      ? Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                top: SizeConfig.heightMultiplier! * 5),
+                            child: FutureBuilder(
+                                future: loadFavorites(),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot snapshot) {
+                                  switch (snapshot.connectionState) {
+                                    case ConnectionState.none:
+                                      return Container(
+                                        child: Center(
+                                            child: Text('Connection none')),
+                                      );
+                                    case ConnectionState.done:
+                                      if (eventosFavLista.length == 0) {
+                                        return Container(
+                                          child: Center(
+                                            child: Text(
+                                              'Nao existem eventos favoritos',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.w400),
+                                            ),
                                           ),
-                                          /*EventoContainer(
+                                        );
+                                      }
+                                      return Container(
+                                        height: SizeConfig.maxHeight,
+                                        width: SizeConfig.maxWidth,
+                                        child: ListView.builder(
+                                            scrollDirection: Axis.vertical,
+                                            physics: ClampingScrollPhysics(),
+                                            itemCount: eventosFavLista.length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              var event = snapshot.data[index];
+                                              var title =
+                                                  snapshot.data[index].title;
+                                              var eventid =
+                                                  snapshot.data[index].id;
+                                              var location =
+                                                  snapshot.data[index].location;
+                                              var timeStart = snapshot
+                                                  .data[index]
+                                                  .dates[0]
+                                                  .date
+                                                  .timeStart;
+                                              var eventdate = snapshot
+                                                  .data[index]
+                                                  .dates[0]
+                                                  .date
+                                                  .eventDate;
+                                              var image =
+                                                  'http://${snapshot.data[index].images[0].image.thumbnail}';
+                                              List<String?> listcateg = [];
+                                              int numcateg = snapshot
+                                                  .data[index]
+                                                  .categories
+                                                  .length;
+                                              for (var i = 0;
+                                                  i < numcateg;
+                                                  i++) {
+                                                listcateg.add(snapshot
+                                                    .data[index]
+                                                    .categories[i]
+                                                    .category
+                                                    .name);
+                                              }
+                                              bool imagebool = true;
+                                              index == numerofavoritos - 1
+                                                  ? imagebool = false
+                                                  : imagebool = true;
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  Router_.router.navigateTo(
+                                                      context,
+                                                      '/eventdetails?eventoid=$eventid');
+                                                },
+                                                child: WidgetContainerEventos(
+                                                  evento: event,
+                                                  userPreferences: up,
+                                                  listacategorias: listcateg,
+                                                  imagebool: imagebool,
+                                                ),
+                                                /*EventoContainer(
                                                 userPreferences: up,
                                                 id: eventid,
                                                 title: title,
@@ -172,22 +289,61 @@ class _FavoritesState extends State<Favorites> {
                                                 imagebool: imagebool,
                                                 categorylist: listcateg,
                                               ),*/
-                                        );
-                                      }),
-                                );
-                              case ConnectionState.waiting:
-                                return Container(
-                                  child: Center(
-                                      child: CircularProgressIndicator()),
-                                );
-                              case ConnectionState.active:
-                                return Container(
-                                    child: Center(
-                                        child: CircularProgressIndicator()));
-                            }
-                          }),
-                    ),
-                  )
+                                              );
+                                            }),
+                                      );
+                                    case ConnectionState.waiting:
+                                      return Container(
+                                        child: Center(
+                                            child: CircularProgressIndicator()),
+                                      );
+                                    case ConnectionState.active:
+                                      return Container(
+                                          child: Center(
+                                              child:
+                                                  CircularProgressIndicator()));
+                                  }
+                                }),
+                          ),
+                        )
+                      : erros == true
+                          ? Expanded(child: Container(
+                            height: SizeConfig.maxHeight,
+                            width: SizeConfig.maxWidth,
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                                                    Icon(
+                                      Icons.error,
+                                      color: Colors.white,
+                                    ),
+                                    Text('Algo inesperado aconteceu'),
+                                ],
+                              ),
+                            ),
+                          ))
+                          : Expanded(
+                              child: Container(
+                                height: SizeConfig.maxHeight,
+                                width: SizeConfig.maxWidth,
+                                child: Center(
+                                    child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.network_locked,
+                                      color: Colors.white,
+                                    ),
+                                    Text(
+                                      'Sem net',
+                                      style:
+                                          Theme.of(context).textTheme.headline3,
+                                    ),
+                                  ],
+                                )),
+                              ),
+                            )
                 ],
               ),
             ),
@@ -519,7 +675,9 @@ class CategoryWidget extends StatelessWidget {
             color: Color.fromRGBO(233, 168, 3, 1),
             borderRadius: BorderRadius.all(Radius.circular(10))),
         child: Padding(
-          padding:  EdgeInsets.only(left: SizeConfig.widthMultiplier! * 3, right: SizeConfig.widthMultiplier! * 3),
+          padding: EdgeInsets.only(
+              left: SizeConfig.widthMultiplier! * 3,
+              right: SizeConfig.widthMultiplier! * 3),
           child: Center(
             child: Text(
               categorytext!,
@@ -652,41 +810,44 @@ class _WidgetImagemDetalhesEventosState
               Positioned(
                 top: 6,
                 right: 10,
-                child: Stack(alignment: Alignment.center, children: [
-                  Image(
-                    image: AssetImage(
-                      'assets/images/icons/icon_ellipse.png',
+                child: Center(
+                  child: Stack(alignment: Alignment.center, children: [
+                    Image(
+                      image: AssetImage(
+                        'assets/images/icons/icon_ellipse.png',
+                      ),
+                      height: 3 * SizeConfig.heightMultiplier!,
+                      color: Colors.transparent,
+                      colorBlendMode: BlendMode.hardLight,
                     ),
-                    height: 3 * SizeConfig.heightMultiplier!,
-                    color: Colors.transparent,
-                    colorBlendMode: BlendMode.hardLight,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        if (widget.userPreferences
-                            .isFavorito(widget.evento.id!)) {
-                          widget.userPreferences
-                              .removeFavorito(widget.evento.id!);
-                        } else {
-                          widget.userPreferences.addFavorito(widget.evento.id!);
-                        }
-                      });
-                    },
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Image(
-                          image: widget.userPreferences
-                                  .isFavorito(widget.evento.id!)
-                              ? AssetImage(
-                                  'assets/images/icons/icon_favorites.png',
-                                )
-                              : AssetImage(
-                                  'assets/images/icons/icon_favorite.png'),
-                          height: 2.6 * SizeConfig.heightMultiplier!),
-                    ),
-                  )
-                ]),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (widget.userPreferences
+                              .isFavorito(widget.evento.id!)) {
+                            widget.userPreferences
+                                .removeFavorito(widget.evento.id!);
+                          } else {
+                            widget.userPreferences
+                                .addFavorito(widget.evento.id!);
+                          }
+                        });
+                      },
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Image(
+                            image: widget.userPreferences
+                                    .isFavorito(widget.evento.id!)
+                                ? AssetImage(
+                                    'assets/images/icons/icon_favorites.png',
+                                  )
+                                : AssetImage(
+                                    'assets/images/icons/icon_favorite.png'),
+                            height: 2.6 * SizeConfig.heightMultiplier!),
+                      ),
+                    )
+                  ]),
+                ),
               ),
             ]),
           ),
@@ -706,122 +867,132 @@ class _WidgetImagemDetalhesEventosState
                     SizeConfig.heightMultiplier! * 1.2,
                     SizeConfig.widthMultiplier! * 2.1,
                     SizeConfig.heightMultiplier! * 1.2),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        //padding: const EdgeInsets.fromLTRB(10, 10, 10, 7),
-                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        child: Row(
-                          children: [
-                            CategoryWidget(context,
-                                categorytext: widget.listacategorias[0]),
-                            SizedBox(
-                              width: SizeConfig.widthMultiplier! * 1.5,
-                            ),
-                            widget.listacategorias.length > 1
-                                ? CategoryplusWidget(context,
-                                    categorytext: '+1')
-                                : Container(),
-                          ],
+                child: Container(
+                  //color: Colors.black,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Flexible(
+                        flex: 2,
+                        child: Container(
+                          //color: Colors.white,
+                          child: Row(
+                            children: [
+                              CategoryWidget(context,
+                                  categorytext: widget.listacategorias[0]),
+                              SizedBox(
+                                width: SizeConfig.widthMultiplier! * 1.5,
+                              ),
+                              widget.listacategorias.length > 1
+                                  ? CategoryplusWidget(context,
+                                      categorytext: '+1')
+                                  : Container(),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                          0,
-                          SizeConfig.heightMultiplier! * 0.7,
-                          0,
-                          SizeConfig.heightMultiplier! * 0.7),
-                      child: Text(
-                        widget.evento.title!,
-                        style: Theme.of(context).textTheme.headline2!,
+                      Flexible(
+                        flex: 2,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                              0,
+                              SizeConfig.heightMultiplier! * 0.7,
+                              0,
+                              SizeConfig.heightMultiplier! * 0.7),
+                          child: Text(
+                            widget.evento.title!,
+                            style: Theme.of(context).textTheme.headline2!,
+                          ),
+                        ),
                       ),
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                      Flexible(
+                        flex: 3,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Image.asset(
-                                'assets/images/icons/icon_eventdetailswatch.png',
-                                height: SizeConfig.imageSizeMultiplier! * 2.5,),
-                            SizedBox(
-                              width: SizeConfig.widthMultiplier! * 1.5,
-                            ),
-                            Text(
-                                '${formatDate(widget.evento.dates![0].date!.timeStart!, [
-                                      HH
-                                    ])}' +
-                                    'h' +
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  'assets/images/icons/icon_eventdetailswatch.png',
+                                  height: SizeConfig.imageSizeMultiplier! * 2.5,
+                                ),
+                                SizedBox(
+                                  width: SizeConfig.widthMultiplier! * 1.5,
+                                ),
+                                Text(
                                     '${formatDate(widget.evento.dates![0].date!.timeStart!, [
-                                      nn
-                                    ])}',
-                                style: Theme.of(context).textTheme.caption),
-                          ],
-                        ),
-                        SizedBox(
-                          height: SizeConfig.heightMultiplier! * 0.3,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/images/icons/icon_eventdetailslocation.png',
-                              height: SizeConfig.imageSizeMultiplier! * 2.5,
+                                          HH
+                                        ])}' +
+                                        'h' +
+                                        '${formatDate(widget.evento.dates![0].date!.timeStart!, [
+                                          nn
+                                        ])}',
+                                    style: Theme.of(context).textTheme.caption),
+                              ],
                             ),
                             SizedBox(
-                              width: SizeConfig.widthMultiplier! * 1.5,
+                              height: SizeConfig.heightMultiplier! * 0.3,
                             ),
-                            Text(widget.evento.location!,
-                                style: Theme.of(context).textTheme.caption)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  'assets/images/icons/icon_eventdetailslocation.png',
+                                  height: SizeConfig.imageSizeMultiplier! * 2.5,
+                                ),
+                                SizedBox(
+                                  width: SizeConfig.widthMultiplier! * 1.5,
+                                ),
+                                Text(widget.evento.location!,
+                                    style: Theme.of(context).textTheme.caption)
+                              ],
+                            )
                           ],
-                        )
-                      ],
-                    ),
-                    /*Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Image.asset(
-                            'assets/images/icons/icon_eventdetailswatch.png',
-                            scale: 0.5 * SizeConfig.imageSizeMultiplier!),
-                        SizedBox(
-                          width: SizeConfig.widthMultiplier! * 1.5,
                         ),
-                        Text(
-                            '${formatDate(widget.evento.dates![0].date!.timeStart!, [
-                                  HH
-                                ])}' +
-                                'h' +
-                                '${formatDate(widget.evento.dates![0].date!.timeStart!, [
-                                  nn
-                                ])}',
-                            style: Theme.of(context).textTheme.caption),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Image.asset(
-                          'assets/images/icons/icon_eventdetailslocation.png',
-                          scale: 0.5 * SizeConfig.imageSizeMultiplier!,
-                        ),
-                        SizedBox(
-                          width: SizeConfig.widthMultiplier! * 1.5,
-                        ),
-                        Text(widget.evento.location!,
-                            style: Theme.of(context).textTheme.caption)
-                      ],
-                    )*/
-                  ],
+                      ),
+                      /*Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Image.asset(
+                              'assets/images/icons/icon_eventdetailswatch.png',
+                              scale: 0.5 * SizeConfig.imageSizeMultiplier!),
+                          SizedBox(
+                            width: SizeConfig.widthMultiplier! * 1.5,
+                          ),
+                          Text(
+                              '${formatDate(widget.evento.dates![0].date!.timeStart!, [
+                                    HH
+                                  ])}' +
+                                  'h' +
+                                  '${formatDate(widget.evento.dates![0].date!.timeStart!, [
+                                    nn
+                                  ])}',
+                              style: Theme.of(context).textTheme.caption),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Image.asset(
+                            'assets/images/icons/icon_eventdetailslocation.png',
+                            scale: 0.5 * SizeConfig.imageSizeMultiplier!,
+                          ),
+                          SizedBox(
+                            width: SizeConfig.widthMultiplier! * 1.5,
+                          ),
+                          Text(widget.evento.location!,
+                              style: Theme.of(context).textTheme.caption)
+                        ],
+                      )*/
+                    ],
+                  ),
                 ),
               ),
             ),
