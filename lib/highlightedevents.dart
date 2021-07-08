@@ -9,6 +9,7 @@ import 'package:outline_search_bar/outline_search_bar.dart';
 import 'package:vivaviseu/config/router.dart';
 import 'package:vivaviseu/objects.dart';
 import 'package:vivaviseu/utils/category.dart';
+import 'package:vivaviseu/utils/containers.dart';
 import 'package:vivaviseu/utils/responsive.dart';
 import 'package:vivaviseu/utils/style.dart';
 import 'package:vivaviseu/utils/utils.dart';
@@ -28,18 +29,20 @@ class HighlightedEvents extends StatefulWidget {
 }
 
 class HighlightedEventsState extends State<HighlightedEvents> {
-  List<Result>? eventosemdestaque; //lista de eventos em destaque
+  List<Result>? eventosemdestaque = []; //lista de eventos em destaque
   List<CategoryCategory> listaCategorias = [];
   late int numeroeventos; //numero de eventos em destaque
-  //int numeroeventos = 0;
   int? numerocategorias; //numero de categorias
 
   final Connectivity _connectivity = Connectivity();
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-  String _connectionStatus = 'Unknown';
+  bool _connectionStatus = true;
   late ConnectivityResult _connectivityResult = ConnectivityResult.none;
 
+  bool erros = false;
+
   late UserPreferences userPref;
+
   String searchtext = '';
 
   @override
@@ -64,7 +67,10 @@ class HighlightedEventsState extends State<HighlightedEvents> {
           break;
         }
         setState(() {
-          _connectionStatus = 'Sucess';
+          setState(() {
+            erros = false;
+            _connectionStatus = true;
+          });
           print(_connectionStatus);
         });
         break;
@@ -73,7 +79,10 @@ class HighlightedEventsState extends State<HighlightedEvents> {
           break;
         }
         setState(() {
-          _connectionStatus = 'Sucess';
+          setState(() {
+            erros = false;
+            _connectionStatus = true;
+          });
           print(_connectionStatus);
         });
         break;
@@ -81,14 +90,21 @@ class HighlightedEventsState extends State<HighlightedEvents> {
         if (!mounted) {
           break;
         }
-        setState(() => _connectionStatus = 'No connectivity');
+        setState(() {
+          erros = false;
+          _connectionStatus = false;
+        });
         print(_connectionStatus);
         break;
       default:
         if (!mounted) {
           break;
         }
-        setState(() => _connectionStatus = 'No connectivity');
+        ;
+        setState(() {
+          erros = false;
+          _connectionStatus = false;
+        });
         print(_connectionStatus);
         break;
     }
@@ -103,12 +119,12 @@ class HighlightedEventsState extends State<HighlightedEvents> {
     if (!mounted) {
       return Future.value(null);
     }
-
     return _updateConnectionStatus(_connectivityResult);
   }
 
   Future<List<Result>?> loadData() async {
     userPref = await UserPreferences();
+    eventosemdestaque = [];
     numeroeventos = 0;
     Uri eventosapiUrl =
         Uri.parse("http://vivaviseu.projectbox.pt/api/v1/highlighted_events");
@@ -117,26 +133,51 @@ class HighlightedEventsState extends State<HighlightedEvents> {
       print('Conexão $_connectionStatus');
       var resposta;
       try {
-        resposta = await http.get(eventosapiUrl);
+        resposta = await http.get(eventosapiUrl).onError((error, stackTrace) {
+          erros = true;
+          return Future.value();
+        });
       } on SocketException catch (e) {
-        return null;
+        print(e.toString());
+        erros = true;
+        return eventosemdestaque;
+      } on http.ClientException catch (e) {
+        print(e.toString());
+        erros = true;
+        return eventosemdestaque;
+      } on PlatformException catch (e) {
+        print(e.toString());
+        erros = true;
+        return eventosemdestaque;
+      } on Exception catch (e) {
+        print(e.toString());
+        erros = true;
+        return eventosemdestaque;
+      } catch (e) {
+        erros = true;
+        return eventosemdestaque;
       }
-      if (resposta.statusCode == 200) {
-        Map<String, dynamic> body = json.decode(resposta.body);
-        Welcome Data = Welcome.fromMap(body);
-        print("Número de Eventos em Destaque: ${Data.result!.length}");
-        int i;
-        if (Data.result!.length == 0) {
-          eventosemdestaque = [];
-        } else {
-          for (i = 0; i < Data.result!.length; i++) {
-            print(
-                'Evento: [ID:${Data.result![i].event!.id}] , Título: ${Data.result![i].event!.title} , Organizador: ${Data.result![i].event!.organizer!.name}');
+      try {
+        if (resposta.statusCode == 200) {
+          Map<String, dynamic> body = json.decode(resposta.body);
+          Welcome Data = Welcome.fromMap(body);
+          print("Número de Eventos em Destaque: ${Data.result!.length}");
+          int i;
+          if (Data.result!.length == 0) {
+            eventosemdestaque = [];
+          } else {
+            for (i = 0; i < Data.result!.length; i++) {
+              print(
+                  'Evento: [ID:${Data.result![i].event!.id}] , Título: ${Data.result![i].event!.title} , Organizador: ${Data.result![i].event!.organizer!.name}');
+            }
+            numeroeventos = Data.getListEvents()!.length;
+            eventosemdestaque = Data.result;
+            return eventosemdestaque;
           }
-          numeroeventos = Data.getListEvents()!.length;
-          eventosemdestaque = Data.result;
-          return eventosemdestaque;
         }
+      } on Exception catch (e) {
+        print(e.toString());
+        return eventosemdestaque;
       }
     }
   }
@@ -145,50 +186,52 @@ class HighlightedEventsState extends State<HighlightedEvents> {
     Uri categoriesapiUrl =
         Uri.parse("http://vivaviseu.projectbox.pt/api/v1/categories");
     numeroeventos = 0;
+    listaCategorias.clear();
     print('Link utilizado para Categorias: $categoriesapiUrl');
     if (_connectivityResult != ConnectivityResult.none) {
       print('Conexão $_connectionStatus');
       var resposta;
       try {
-        resposta = await http.get(categoriesapiUrl);
+        resposta =
+            await http.get(categoriesapiUrl).onError((error, stackTrace) {
+          erros = true;
+          return Future.value();
+        });
       } on SocketException catch (e) {
         print(e.toString());
-        return null;
+        erros = true;
+        return listaCategorias;
+      } on http.ClientException catch (e) {
+        print(e.toString());
+        erros = true;
+        return listaCategorias;
       } on PlatformException catch (e) {
         print(e.toString());
-        return null;
+        erros = true;
+        return listaCategorias;
       } on Exception catch (e) {
         print(e.toString());
-        return null;
-      }
-      //var resposta = await http.get(categoriesapiUrl);
-      if (resposta.statusCode == 200) {
-        Map<String, dynamic> body = json.decode(resposta.body);
-        //List<CategoryCategory> listaCategorias = [];
-        numerocategorias = body['result'].length;
-        for (int i = 0; i < body['result'].length; i++) {
-          CategoryCategory category =
-              CategoryCategory.fromMap(body['result'][i]['category']);
-          print('${category.name}');
-          listaCategorias.add(category);
-        }
+        erros = true;
+        return listaCategorias;
+      } catch (e) {
+        erros = true;
         return listaCategorias;
       }
-    }
-  }
-
-  void search(String content) async {
-    Uri searchapiUrl = Uri.parse(
-        "http://vivaviseu.projectbox.pt/api/v1/events?page=1&category=1&organizer=1&query=$content");
-    print('Link utilizado para Eventos em Destaque: $searchapiUrl');
-    var resposta = await http.get(searchapiUrl);
-    if (resposta.statusCode == 200) {
-      Map<String, dynamic> body = json.decode(resposta.body);
-      Welcome Data = Welcome.fromMap(body);
-      print("Número de resultados de pesquisa: ${Data.result!.length}");
-      for (int i = 0; i < Data.result!.length; i++) {
-        print(
-            '#Evento: [ID:${Data.result![i].event!.id}] , Título: ${Data.result![i].event!.title} , Organizador: ${Data.result![i].event!.organizer!.name}');
+      try {
+        if (resposta.statusCode == 200) {
+          Map<String, dynamic> body = json.decode(resposta.body);
+          numerocategorias = body['result'].length;
+          for (int i = 0; i < body['result'].length; i++) {
+            CategoryCategory category =
+                CategoryCategory.fromMap(body['result'][i]['category']);
+            print('${category.name}');
+            listaCategorias.add(category);
+          }
+          return listaCategorias;
+        }
+      } on Exception catch (e) {
+        print(e.toString());
+        return listaCategorias;
       }
     }
   }
@@ -237,7 +280,7 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                       2.2 * SizeConfig.heightMultiplier!,
                       6 * SizeConfig.widthMultiplier!,
                       0),
-                  child: _connectionStatus != 'No connectivity'
+                  child: _connectionStatus != false
                       ? SingleChildScrollView(
                           child: Row(
                             children: [
@@ -246,12 +289,28 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                                   height: 4 * SizeConfig.heightMultiplier!,
                                   child: FutureBuilder(
                                       future: loadCategories(),
-                                      builder:
-                                          // ignore: missing_return
-                                          (BuildContext context,
-                                              AsyncSnapshot snapshot) {
+                                      builder: (BuildContext context,
+                                          AsyncSnapshot snapshot) {
                                         if (snapshot.data == null) {
-                                          return Container();
+                                          return Container(
+                                            height: 4 *
+                                                SizeConfig.heightMultiplier!,
+                                            child: ListView.builder(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                itemCount: 3,
+                                                itemBuilder:
+                                                    (BuildContext contex,
+                                                        int index) {
+                                                  return Padding(
+                                                    padding: EdgeInsets.only(
+                                                        right: SizeConfig
+                                                            .heightMultiplier!),
+                                                    child:
+                                                        CategoryTabSimpleNoNetwork(),
+                                                  );
+                                                }),
+                                          );
                                         }
                                         switch (snapshot.connectionState) {
                                           case ConnectionState.none:
@@ -269,7 +328,24 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                                           case ConnectionState.done:
                                             if (numerocategorias == 0) {
                                               return Container(
-                                                child: Text('Sem Categorias'),
+                                                height: 4 *
+                                                    SizeConfig
+                                                        .heightMultiplier!,
+                                                child: ListView.builder(
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    itemCount: 3,
+                                                    itemBuilder:
+                                                        (BuildContext contex,
+                                                            int index) {
+                                                      return Padding(
+                                                        padding: EdgeInsets.only(
+                                                            right: SizeConfig
+                                                                .heightMultiplier!),
+                                                        child:
+                                                            CategoryTabSimpleNoNetwork(),
+                                                      );
+                                                    }),
                                               );
                                             } else {
                                               return ListView.builder(
@@ -308,30 +384,7 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                             ],
                           ),
                         )
-                      : /*SingleChildScrollView(
-                        child: Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  height: 4 * SizeConfig.heightMultiplier!,
-                                  child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: 3,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 5, right: 5),
-                                          child: CategoryTabSimpleNoNetwork(),
-                                        );
-                                      }),
-                                ),
-                              ),
-                            ],
-                          ),
-                      )*/
-                      Container(
-                          //color: Colors.yellow,
+                      : Container(
                           height: 4 * SizeConfig.heightMultiplier!,
                           child: ListView.builder(
                               scrollDirection: Axis.horizontal,
@@ -370,7 +423,7 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                   ],
                 ),
               ),
-              _connectionStatus != 'No connectivity'
+              _connectionStatus != false && erros == false
                   ? Flexible(
                       fit: FlexFit.loose,
                       child: Padding(
@@ -479,7 +532,9 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                         ),
                       ),
                     )
-                  : Text('Sem net')
+                  : erros == true
+                      ? Expanded(child: ContainerGeneralError())
+                      : Expanded(child: ContainerNetworkError())
             ]),
           ),
         ));
@@ -506,6 +561,7 @@ class _EventCardState extends State<EventCard> {
   var image;
   late int numcateg;
   List<String?> listcateg = [];
+  late bool errornetworkimage;
 
   initState() {
     eventid = widget.evento.id;
@@ -527,6 +583,7 @@ class _EventCardState extends State<EventCard> {
     for (var i = 0; i < numcateg; i++) {
       listcateg.add(widget.evento.categories![i].category!.name);
     }
+    errornetworkimage = false;
   }
 
   @override
@@ -553,15 +610,15 @@ class _EventCardState extends State<EventCard> {
               },
               blendMode: BlendMode.dstIn,
               child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  image: DecorationImage(
-                      image: NetworkImage(
-                        image,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                        image: /*errornetworkimage != false ? */ DecorationImage(
+                            image: NetworkImage(
+                              image,
+                            ),
+                            fit: BoxFit.fill,),
                       ),
-                      fit: BoxFit.fill),
-                ),
-              ),
+                    )
             ),
             Align(
               alignment: Alignment.topRight,

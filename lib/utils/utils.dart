@@ -73,19 +73,17 @@ class UserPreferences {
 
 //General use functions
 
-//order list events by date
-orderListEvents(List<Event?> list) {
-  print('A ordernar Eventos');
+ orderListEvents(List<Event?> list) {
   int size = list.length;
-  Event? aux;
   for (int i = 0; i < size - 1; i++) {
-    if (list[i + 1]!.startDate!.isBefore(list[i]!.startDate!)) {
-      aux = list[i];
-      list[i] = list[i + 1];
-      list[i + 1] = aux;
+    for (int j = 0; j < size - 1; j++) {
+      if (list[j]!.startDate!.isAfter(list[j + 1]!.startDate!)) {
+        Event aux = list[j]!;
+        list[j] = list[j + 1];
+        list[j + 1] = aux;
+      }
     }
   }
-  print('Lista ordenada $list');
 }
 
 bool checkenddatebeforestartdate(
@@ -150,10 +148,10 @@ String getIconPath(Uri uri) {
   if (host == 'www.facebook.com') {
     return facebook;
   }
-  if(host == 'www.twitter.com'){
+  if (host == 'www.twitter.com') {
     return twitter;
   }
-  if(host == 'www.youtube.com'){
+  if (host == 'www.youtube.com') {
     return youtube;
   }
   return link;

@@ -46,6 +46,7 @@ dependencies:
   timezone: ^0.7.0
   quiver: ^3.0.1 #numero de dias de um mes
   connectivity: ^3.0.6 #conectividade
+  flutter_native_splash: ^1.2.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -96,6 +97,7 @@ flutter:
     - assets/images/icons/twitter.png
     - assets/images/icons/youtube.png
     - assets/images/icons/link.png
+    - assets/images/icons/background.png
 
 
 

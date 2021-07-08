@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:vivaviseu/calendar.dart';
 import 'package:vivaviseu/config/router.dart';
@@ -65,13 +69,11 @@ class _ListagemGeralState extends State<ListagemGeral> {
   @override
   void initState() {
     print('[---------- Página Listagem Geral ----------]');
-    print('-------------${widget.searchtext}--------------');
     super.initState();
     if (widget.categoryid != null) {
       inhcategoryid = widget.categoryid!;
       print('Listar categoria $inhcategoryid');
       Buttons.setSelected(inhcategoryid);
-      //categorychange.value = Buttons.getSelected();
       parentchange(inhcategoryid);
     }
     if (widget.searchtext != null) {
@@ -82,6 +84,11 @@ class _ListagemGeralState extends State<ListagemGeral> {
     }
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void parentchange(int id) {
     print('categorychange = ${categorychange.value} e categoryid = $id ');
     if (categorychange.value == id) {
@@ -89,11 +96,13 @@ class _ListagemGeralState extends State<ListagemGeral> {
       searchsearch = false;
       print('Tenho que mostrar todos!');
       setState(() {
+        tobsearched = '';
         categorychange.value = 999;
       });
       return;
-    } else{
+    } else {
       setState(() {
+        tobsearched = '';
         categorychange.value = id;
         categorysearch = true;
         searchsearch = false;
@@ -104,10 +113,12 @@ class _ListagemGeralState extends State<ListagemGeral> {
   }
 
   void submitSearch(String text) {
-    categorysearch = false;
-    searchsearch = true;
-    tobsearched = text;
-    categorychange.value = 999;
+    setState(() {
+      categorysearch = false;
+      searchsearch = true;
+      tobsearched = text;
+      categorychange.value = 999;
+    });
   }
 
   @override
@@ -165,22 +176,22 @@ class _ListagemGeralState extends State<ListagemGeral> {
                       borderRadius: BorderRadius.all(Radius.circular(7)),
                       clearButtonColor: Colors.transparent,
                       textInputAction: TextInputAction.search,
-                                            maxLength: 25,
+                      maxLength: 25,
                       textStyle: AppTheme.TextStyleTheme.headline4!,
-                      hintStyle: AppTheme.TextStyleTheme.headline4!.copyWith(color: Color.fromRGBO(152, 176, 210, 1)),
+                      hintStyle: AppTheme.TextStyleTheme.headline4!
+                          .copyWith(color: Color.fromRGBO(152, 176, 210, 1)),
                       cursorColor: Color.fromRGBO(233, 168, 3, 1),
                       onSearchButtonPressed: (value) {
                         submitSearch(value);
                       },
                       onTypingFinished: (value) => print('Pesquisa ? $value'),
-                      onTap: (){
+                      onTap: () {
                         setState(() {
-                                                               Buttons.removeSelected();
-                                                                    searchsearch = false;
-                                  categorysearch = false;
-                                  tobsearched = 'Pesquisar';                     
-                                                });
-                                  //categorychange.value = Buttons.getSelected();
+                          Buttons.removeSelected();
+                          searchsearch = false;
+                          categorysearch = false;
+                          tobsearched = 'Pesquisar';
+                        });
                       },
                     ),
                   ),
@@ -232,7 +243,10 @@ class _ListagemGeralState extends State<ListagemGeral> {
 
 class WidgetListaCategorias extends StatefulWidget {
   const WidgetListaCategorias(
-      {Key? key, required this.selectedCategory, this.alreadyselected, required this.buttons})
+      {Key? key,
+      required this.selectedCategory,
+      this.alreadyselected,
+      required this.buttons})
       : super(key: key);
   final Function(int) selectedCategory;
   final int? alreadyselected;
@@ -246,8 +260,6 @@ class _WidgetListaCategoriasState extends State<WidgetListaCategorias> {
   int numerocategorias = 0;
   int selectedcategory = 0;
   final ValueNotifier<int> teste = ValueNotifier(0);
-  //late final GroupButtons Buttons;
-  //final ValueNotifier<bool> redrawListaCategorias = ValueNotifier(false);
   List<CategoryCategory> categorylist = [];
 
   Future<List<CategoryCategory>?> loadCategories() async {
@@ -272,53 +284,24 @@ class _WidgetListaCategoriasState extends State<WidgetListaCategorias> {
 
   void iniState() {
     super.initState();
-    if(widget.alreadyselected != null){
-      if(selectedcategory != widget.buttons.getSelected())
-      selectedcategory = widget.alreadyselected!;
+    if (widget.alreadyselected != null) {
+      if (selectedcategory != widget.buttons.getSelected())
+        selectedcategory = widget.alreadyselected!;
     }
   }
 
-  /*void listController(int categoryid) {
-    //teste
-    //selectedcategory = categoryid;
-    //
-
-    // if (widget.buttons.getSelected() == selectedcategory) {
-    if (widget.buttons.getSelected() == categoryid) {
+  void listController(int categoryid) {
+    if (categoryid != 999) {
       setState(() {
-        print('Des selecionei categoria $categoryid!');
-        widget.buttons.removeSelected();
-        selectedcategory = widget.buttons.getSelected();
-        widget.selectedCategory(categoryid);
-        return;
+        selectedcategory = categoryid;
+        widget.selectedCategory(selectedcategory);
       });
+      return;
     } else {
       setState(() {
-        print('Selecionei categoria $categoryid!');
-        selectedcategory = widget.buttons.getSelected();
-        //widget.buttons.removeSelected();
+        selectedcategory = categoryid;
         widget.selectedCategory(selectedcategory);
-        return;
       });
-    }
-  }*/
-
-    void listController(int categoryid) {
-    //teste
-    //selectedcategory = categoryid;
-    //
-
-    if(categoryid != 999){
-      setState(() {
-              selectedcategory = categoryid;
-              widget.selectedCategory(selectedcategory);
-            });
-            return;
-    }else{
-      setState(() {
-              selectedcategory = categoryid;
-              widget.selectedCategory(selectedcategory);
-            });
     }
 
     // if (widget.buttons.getSelected() == selectedcategory) {
@@ -357,7 +340,8 @@ class _WidgetListaCategoriasState extends State<WidgetListaCategorias> {
                             (BuildContext context, AsyncSnapshot snapshot) {
                           switch (snapshot.connectionState) {
                             case ConnectionState.none:
-                              return ContainerNetworkError(); /*Container(
+                              return ContainerNetworkError();
+                            /*Container(
                                 child:
                                     Center(child: CircularProgressIndicator()),
                               );*/
@@ -439,11 +423,161 @@ class Listagemporcategoria extends StatefulWidget {
 }
 
 class _ListagemporcategoriaState extends State<Listagemporcategoria> {
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  late bool _connectionStatus;
+  late ConnectivityResult _connectivityResult = ConnectivityResult.none;
+
+  bool erros = false;
+
   int? numeroeventos;
-  List<Result> eventosalistar = []; //lista de eventos a listar
+  List<Result?> eventosalistar = []; //lista de eventos a listar
+
   late UserPreferences up;
 
-  Future<List<Result>?> loadData() async {
+  @override
+  void initState() {
+    print('[---------- Widget Listagem Categoria ${widget.id} ----------]');
+    super.initState();
+    initConnectivity();
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    switch (result) {
+      case ConnectivityResult.wifi:
+        if (!mounted) {
+          break;
+        }
+        setState(() {
+          setState(() {
+                      eventosalistar.clear();
+            erros = false;
+            _connectionStatus = true;
+          });
+          print(_connectionStatus);
+        });
+        break;
+      case ConnectivityResult.mobile:
+        if (!mounted) {
+          break;
+        }
+        setState(() {
+          setState(() {
+                      eventosalistar.clear();
+            erros = false;
+            _connectionStatus = true;
+          });
+          print(_connectionStatus);
+        });
+        break;
+      case ConnectivityResult.none:
+        if (!mounted) {
+          break;
+        }
+        setState(() {
+          eventosalistar.clear();
+          erros = false;
+          _connectionStatus = false;
+        });
+        print(_connectionStatus);
+        break;
+      default:
+        if (!mounted) {
+          break;
+        }
+        ;
+        setState(() {
+                    eventosalistar.clear();
+          erros = false;
+          _connectionStatus = false;
+        });
+        print(_connectionStatus);
+        break;
+    }
+  }
+
+  Future<void> initConnectivity() async {
+    _connectionStatus = true;
+    try {
+      _connectivityResult = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      print(e.toString());
+      _connectionStatus = false;
+      return;
+    }
+    _connectionStatus = true;
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(_connectivityResult);
+  }
+
+  /*Future<List<Event?>?> loadData() async {
+    if (eventosalistar.isNotEmpty) {
+      eventosalistar.clear();
+    }
+    up = await UserPreferences();
+    Uri categoriasapiUrl = Uri.parse(
+        "http://vivaviseu.projectbox.pt/api/v1/events?category=${widget.id}");
+    print('Link utilizado para Pesquisa Categoria : $categoriasapiUrl');
+    var resposta;
+    try{
+    resposta = await http.get(categoriasapiUrl).onError((error, stackTrace) {
+      erros = true;
+      return Future.value();
+    });}      on SocketException catch(e){
+        print(e.toString());
+        erros = true;
+        return eventosalistar;
+      }
+      on http.ClientException catch (e) {
+        print(e.toString());
+        erros = true;
+        return eventosalistar;}
+      on PlatformException catch (e) {
+        print(e.toString());
+        erros = true;
+        return eventosalistar;
+      } on Exception catch (e) {
+        print(e.toString());
+        erros = true;
+        return eventosalistar;
+      }
+      catch(e){
+        erros = true;
+        return eventosalistar;
+      }
+      try{
+    if (resposta.statusCode == 200) {
+      Map<String, dynamic> body = json.decode(resposta.body);
+      Welcome Data = Welcome.fromMap(body);
+      numeroeventos = Data.getListEvents()!.length;
+      /*if (Data.result != null) {
+        eventosalistar = Data.result!;
+      }*/
+      /*for(int i = 0; i < Data.result!.length; i++ ){
+        eventosalistar.add(Data.result![i].event);
+      }*/
+      eventosalistar = Data.getListEventsIn();
+      orderListEvents(eventosalistar);
+      return eventosalistar;
+    }
+      }on Exception catch (e) {
+        print(e.toString());
+        return eventosalistar;
+      }
+  }*/
+
+    Future<List<Result?>?> loadData() async {
     if(eventosalistar.isNotEmpty){eventosalistar.clear();}
     up = await UserPreferences();
     Uri categoriasapiUrl = Uri.parse(
@@ -456,8 +590,9 @@ class _ListagemporcategoriaState extends State<Listagemporcategoria> {
       numeroeventos = Data.getListEvents()!.length;
       if(Data.result != null){
       eventosalistar = Data.result!;
-      }
       return eventosalistar;
+      }
+      return eventosalistar = [];
     }
   }
 
@@ -521,61 +656,27 @@ class _ListagemporcategoriaState extends State<Listagemporcategoria> {
       ),
     );
   }
-}
 
-class Listagemtodoseventos extends StatefulWidget {
-  const Listagemtodoseventos({Key? key}) : super(key: key);
-
-  @override
-  _ListagemtodoseventosState createState() => _ListagemtodoseventosState();
-}
-
-class _ListagemtodoseventosState extends State<Listagemtodoseventos> {
-  int? numeroeventos;
-  List<Event> eventosalistar = []; //lista de eventos a listar
-  late UserPreferences up;
-
-  Future<List<Event>?> loadData() async {
-    eventosalistar.clear();
-    up = await UserPreferences();
-    Uri eventosapiUrl =
-        Uri.parse("http://vivaviseu.projectbox.pt/api/v1/events/");
-    print('Link utilizado para Eventos : $eventosapiUrl');
-    var resposta = await http.get(eventosapiUrl);
-    if (resposta.statusCode == 200) {
-      Map<String, dynamic> body = json.decode(resposta.body);
-      Welcome Data = Welcome.fromMap(body);
-      int i;
-      for (i = 0; i < Data.result!.length; i++) {
-        eventosalistar.add(Data.result![i].event!);
-      }
-      numeroeventos = Data.getListEvents()!.length;
-      orderListEvents(eventosalistar);
-      return eventosalistar;
-    }
-  }
-
-  @override
+  /*@override
   Widget build(BuildContext context) {
-    return Container(
+    return _connectionStatus == true ? Container(
       height: SizeConfig.maxHeight,
       width: SizeConfig.maxWidth,
-      child: FutureBuilder(
+      child: eventosalistar.isEmpty ? FutureBuilder(
         future: loadData(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
               return Container(
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(child: ContainerNetworkError()),
               );
             case ConnectionState.done:
-              return ListView.builder(
+              return eventosalistar.isEmpty ? ListView.builder(
                   scrollDirection: Axis.vertical,
-                  //shrinkWrap: true,
-                  //physics: ClampingScrollPhysics(),
+                  physics: ClampingScrollPhysics(),
                   itemCount: numeroeventos,
                   itemBuilder: (BuildContext context, int index) {
-                    Event event = snapshot.data[index];
+                    Event event = snapshot.data[index].event;
                     List<String?> listcateg = [];
                     int numcateg = event.categories!.length;
                     for (var i = 0; i < numcateg; i++) {
@@ -597,7 +698,7 @@ class _ListagemtodoseventosState extends State<Listagemtodoseventos> {
                         imagebool: imagebool,
                       ),
                     );
-                  });
+                  }):ContainerNoEvents();;
             case ConnectionState.waiting:
               return Container(
                 child: Center(child: CircularProgressIndicator()),
@@ -607,8 +708,294 @@ class _ListagemtodoseventosState extends State<Listagemtodoseventos> {
                   child: Center(child: CircularProgressIndicator()));
           }
         },
-      ),
-    );
+      ):ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  physics: ClampingScrollPhysics(),
+                  itemCount: numeroeventos,
+                  itemBuilder: (BuildContext context, int index) {
+                    /*if(eventosalistar.isEmpty || numeroeventos == 0){
+                      return ContainerNoEvents();
+                    }*/
+                    Event event = eventosalistar[index]!.event!;
+                    List<String?> listcateg = [];
+                    int numcateg = event.categories!.length;
+                    for (var i = 0; i < numcateg; i++) {
+                      listcateg.add(event.categories![i].category!.name);
+                    }
+                    bool imagebool = true;
+                    index == numeroeventos! - 1
+                        ? imagebool = false
+                        : imagebool = true;
+                    return GestureDetector(
+                      onTap: () {
+                        Router_.router.navigateTo(
+                            context, '/eventdetails?eventoid=${event.id}');
+                      },
+                      child: WidgetContainerEventos(
+                        evento: event,
+                        userPreferences: up,
+                        listacategorias: listcateg,
+                        imagebool: imagebool,
+                      ),
+                    );
+                  }),
+    ): ContainerNetworkError();
+  }*/
+}
+
+class Listagemtodoseventos extends StatefulWidget {
+  const Listagemtodoseventos({Key? key}) : super(key: key);
+
+  @override
+  _ListagemtodoseventosState createState() => _ListagemtodoseventosState();
+}
+
+class _ListagemtodoseventosState extends State<Listagemtodoseventos> {
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  late bool _connectionStatus;
+  late ConnectivityResult _connectivityResult = ConnectivityResult.none;
+
+  int? numeroeventos;
+  List<Event> eventosalistar = []; //lista de eventos a listar
+  late UserPreferences up;
+  bool erros = false;
+
+  @override
+  void initState() {
+    print('[---------- Widget Listagem Todos os Eventos ----------]');
+    super.initState();
+    initConnectivity();
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    eventosalistar = [];
+    numeroeventos = eventosalistar.length;
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    switch (result) {
+      case ConnectivityResult.wifi:
+        if (!mounted) {
+          break;
+        }
+        setState(() {
+          setState(() {
+            erros = false;
+            _connectionStatus = true;
+          });
+          print(_connectionStatus);
+        });
+        break;
+      case ConnectivityResult.mobile:
+        if (!mounted) {
+          break;
+        }
+        setState(() {
+          setState(() {
+            erros = false;
+            _connectionStatus = true;
+          });
+          print(_connectionStatus);
+        });
+        break;
+      case ConnectivityResult.none:
+        if (!mounted) {
+          break;
+        }
+        setState(() {
+          erros = false;
+          _connectionStatus = false;
+        });
+        print(_connectionStatus);
+        break;
+      default:
+        if (!mounted) {
+          break;
+        }
+        ;
+        setState(() {
+          erros = false;
+          _connectionStatus = false;
+        });
+        print(_connectionStatus);
+        break;
+    }
+  }
+
+  Future<void> initConnectivity() async {
+    _connectionStatus = true;
+    try {
+      _connectivityResult = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      print(e.toString());
+      _connectionStatus = false;
+      return;
+    }
+    _connectionStatus = true;
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(_connectivityResult);
+  }
+
+  Future<List<Event>?> loadData() async {
+    if (eventosalistar.isNotEmpty) {
+      return eventosalistar;
+    }
+    eventosalistar.clear();
+    up = await UserPreferences();
+    Uri eventosapiUrl =
+        Uri.parse("http://vivaviseu.projectbox.pt/api/v1/events/");
+    print('Link utilizado para Eventos : $eventosapiUrl');
+    var resposta;
+    try {
+      resposta = await http.get(eventosapiUrl).onError((error, stackTrace) {
+        erros = true;
+        return Future.value();
+      });
+    } on SocketException catch (e) {
+      print(e.toString());
+      erros = true;
+      return eventosalistar = [];
+    } on http.ClientException catch (e) {
+      print(e.toString());
+      erros = true;
+      return eventosalistar = [];
+    } on PlatformException catch (e) {
+      print(e.toString());
+      erros = true;
+      return eventosalistar = [];
+    } on Exception catch (e) {
+      print(e.toString());
+      erros = true;
+      return eventosalistar = [];
+    } catch (e) {
+      erros = true;
+      return eventosalistar = [];
+    }
+    try {
+      if (resposta.statusCode == 200) {
+        Map<String, dynamic> body = json.decode(resposta.body);
+        Welcome Data = Welcome.fromMap(body);
+        int i;
+        for (i = 0; i < Data.result!.length; i++) {
+          print('Teste $i');
+          if (eventosalistar.length > Data.result!.length) {
+            return eventosalistar;
+          }
+          eventosalistar.add(Data.result![i].event!);
+        }
+        numeroeventos = Data.getListEvents()!.length;
+        orderListEvents(eventosalistar);
+        return eventosalistar;
+      }
+    } on Exception catch (e) {
+      print(e.toString());
+      return eventosalistar = [];
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _connectionStatus == true
+        ? Container(
+            height: SizeConfig.maxHeight,
+            width: SizeConfig.maxWidth,
+            child: eventosalistar.isNotEmpty
+                ? ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    //shrinkWrap: true,
+                    //physics: ClampingScrollPhysics(),
+                    itemCount: numeroeventos,
+                    itemBuilder: (BuildContext context, int index) {
+                      if (eventosalistar.isEmpty || numeroeventos == 0) {
+                        return ContainerNoEvents();
+                      }
+                      Event event = eventosalistar[index];
+                      List<String?> listcateg = [];
+                      int numcateg = event.categories!.length;
+                      for (var i = 0; i < numcateg; i++) {
+                        listcateg.add(event.categories![i].category!.name);
+                      }
+                      bool imagebool = true;
+                      index == numeroeventos! - 1
+                          ? imagebool = false
+                          : imagebool = true;
+                      return GestureDetector(
+                        onTap: () {
+                          Router_.router.navigateTo(
+                              context, '/eventdetails?eventoid=${event.id}');
+                        },
+                        child: WidgetContainerEventos(
+                          evento: event,
+                          userPreferences: up,
+                          listacategorias: listcateg,
+                          imagebool: imagebool,
+                        ),
+                      );
+                    })
+                : FutureBuilder(
+                    future: loadData(),
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.none:
+                          return Container(
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        case ConnectionState.done:
+                          return ListView.builder(
+                              scrollDirection: Axis.vertical,
+                              //shrinkWrap: true,
+                              //physics: ClampingScrollPhysics(),
+                              itemCount: numeroeventos,
+                              itemBuilder: (BuildContext context, int index) {
+                                if (eventosalistar.isEmpty ||
+                                    numeroeventos == 0) {
+                                  return ContainerNoEvents();
+                                }
+                                Event event = snapshot.data[index];
+                                List<String?> listcateg = [];
+                                int numcateg = event.categories!.length;
+                                for (var i = 0; i < numcateg; i++) {
+                                  listcateg
+                                      .add(event.categories![i].category!.name);
+                                }
+                                bool imagebool = true;
+                                index == numeroeventos! - 1
+                                    ? imagebool = false
+                                    : imagebool = true;
+                                return GestureDetector(
+                                  onTap: () {
+                                    Router_.router.navigateTo(context,
+                                        '/eventdetails?eventoid=${event.id}');
+                                  },
+                                  child: WidgetContainerEventos(
+                                    evento: event,
+                                    userPreferences: up,
+                                    listacategorias: listcateg,
+                                    imagebool: imagebool,
+                                  ),
+                                );
+                              });
+                        case ConnectionState.waiting:
+                          return Container(
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        case ConnectionState.active:
+                          return Container(
+                              child:
+                                  Center(child: CircularProgressIndicator()));
+                      }
+                    },
+                  ))
+        : ContainerNetworkError();
   }
 }
 
@@ -649,62 +1036,57 @@ class _ListagemporpesquisaState extends State<Listagemporpesquisa> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: double.infinity,
-      child: SingleChildScrollView(
-        child: Container(
-          height: SizeConfig.maxHeight,
-          width: SizeConfig.maxWidth,
-          child: FutureBuilder(
-            future: search(widget.text),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.none:
-                  return Container(
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                case ConnectionState.done:
-                  return ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      //shrinkWrap: true,
-                      physics: ClampingScrollPhysics(),
-                      itemCount: numeroeventos,
-                      itemBuilder: (BuildContext context, int index) {
-                        Event event = snapshot.data[index];
-                        String categoriatext =
-                            snapshot.data[index].categories[0].category.name;
-                        List<String?> listcateg = [];
-                        int numcateg = snapshot.data[index].categories.length;
-                        for (var i = 0; i < numcateg; i++) {
-                          listcateg.add(event.categories![i].category!.name);
-                        }
-                        bool imagebool = true;
-                        index == numeroeventos - 1
-                            ? imagebool = false
-                            : imagebool = true;
-                        return GestureDetector(
-                          onTap: () {
-                            Router_.router.navigateTo(
-                                context, '/eventdetails?eventoid=${event.id}');
-                          },
-                          child: WidgetContainerEventos(
-                            evento: event,
-                            userPreferences: up,
-                            listacategorias: listcateg,
-                            imagebool: imagebool,
-                          ),
-                        );
-                      });
-                case ConnectionState.waiting:
-                  return Container(
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                case ConnectionState.active:
-                  return Container(
-                      child: Center(child: CircularProgressIndicator()));
-              }
-            },
-          ),
-        ),
+      height: SizeConfig.maxHeight,
+      width: SizeConfig.maxWidth,
+      child: FutureBuilder(
+        future: search(widget.text),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+              return Container(
+                child: Center(child: CircularProgressIndicator()),
+              );
+            case ConnectionState.done:
+              return ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  //shrinkWrap: true,
+                  physics: ClampingScrollPhysics(),
+                  itemCount: numeroeventos,
+                  itemBuilder: (BuildContext context, int index) {
+                    Event event = snapshot.data[index];
+                    String categoriatext =
+                        snapshot.data[index].categories[0].category.name;
+                    List<String?> listcateg = [];
+                    int numcateg = snapshot.data[index].categories.length;
+                    for (var i = 0; i < numcateg; i++) {
+                      listcateg.add(event.categories![i].category!.name);
+                    }
+                    bool imagebool = true;
+                    index == numeroeventos - 1
+                        ? imagebool = false
+                        : imagebool = true;
+                    return GestureDetector(
+                      onTap: () {
+                        Router_.router.navigateTo(
+                            context, '/eventdetails?eventoid=${event.id}');
+                      },
+                      child: WidgetContainerEventos(
+                        evento: event,
+                        userPreferences: up,
+                        listacategorias: listcateg,
+                        imagebool: imagebool,
+                      ),
+                    );
+                  });
+            case ConnectionState.waiting:
+              return Container(
+                child: Center(child: CircularProgressIndicator()),
+              );
+            case ConnectionState.active:
+              return Container(
+                  child: Center(child: CircularProgressIndicator()));
+          }
+        },
       ),
     );
   }

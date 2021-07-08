@@ -28,6 +28,16 @@ class Welcome {
       return this.result;
     }
 
+    List<Event?> getListEventsIn(){
+      List<Event> list = [];
+      if(this.result == []){
+        for(int i = 0; i< this.result!.length;i++){
+          list.add(this.result![i].event!);
+        }
+      }
+      return list;
+    }
+
     int getnumeventosdestaque(){
       return result!.length;
     }

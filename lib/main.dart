@@ -1,10 +1,7 @@
-//import 'dart:html';
-
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vivaviseu/config/router.dart';
 import 'package:vivaviseu/config/routes.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -45,6 +42,7 @@ class _AppState extends State<App> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.appTheme,
       onGenerateRoute: Router_.router.generator,
+      
     );
     }
     );

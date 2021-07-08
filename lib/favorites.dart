@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vivaviseu/config/router.dart';
 import 'package:vivaviseu/objects.dart';
 import 'package:http/http.dart' as http;
+import 'package:vivaviseu/utils/containers.dart';
 import 'package:vivaviseu/utils/responsive.dart';
 import 'package:vivaviseu/utils/style.dart';
 import 'package:vivaviseu/utils/utils.dart';
@@ -27,11 +28,14 @@ class _FavoritesState extends State<Favorites> {
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
   late bool _connectionStatus;
   late ConnectivityResult _connectivityResult = ConnectivityResult.none;
+
   bool erros = false;
+
   List<String>? eventosFavoritos = [];
   List<Event?> eventosFavLista = [];
   String url = '';
   int numerofavoritos = 0;
+
   late UserPreferences up;
 
   @override
@@ -56,7 +60,7 @@ class _FavoritesState extends State<Favorites> {
           break;
         }
         setState(() {
-          setState(() => _connectionStatus = true);
+          setState(() {erros = false; _connectionStatus = true;});
           print(_connectionStatus);
         });
         break;
@@ -65,7 +69,7 @@ class _FavoritesState extends State<Favorites> {
           break;
         }
         setState(() {
-          setState(() => _connectionStatus = true);
+          setState((){erros = false; _connectionStatus = true;});
           print(_connectionStatus);
         });
         break;
@@ -73,7 +77,7 @@ class _FavoritesState extends State<Favorites> {
         if (!mounted) {
           break;
         }
-        setState(() => _connectionStatus = false);
+        setState((){erros = false; _connectionStatus = false;});
         print(_connectionStatus);
         break;
       default:
@@ -81,7 +85,7 @@ class _FavoritesState extends State<Favorites> {
           break;
         }
         ;
-        setState(() => _connectionStatus = false);
+        setState((){erros = false; _connectionStatus = false;});
         print(_connectionStatus);
         break;
     }
@@ -105,7 +109,7 @@ class _FavoritesState extends State<Favorites> {
   }
 
   //get events from user favorites and gets them from api
-  Future<List<Event?>?> loadFavorites() async {
+  Future<List<Event?>?> loadFavorites() async{
     print('Loading Users Favorites Events ...');
     up = await UserPreferences();
     eventosFavoritos!.clear();
@@ -127,13 +131,27 @@ class _FavoritesState extends State<Favorites> {
       print('Link utilizado para Eventos Favoritos: $eventosfavoritosurl');
       var resposta;
       try {
-        resposta = await http.get(eventosfavoritosurl);
-      } on PlatformException catch (e) {
+        resposta = await http.get(eventosfavoritosurl).onError((error, stackTrace){ erros = true; return Future.value();});
+      }
+      on SocketException catch(e){
+        print(e.toString());
+        erros = true;
+        return eventosFavLista;
+      }
+      on http.ClientException catch (e) {
+        print(e.toString());
+        erros = true;
+        return eventosFavLista;}
+      on PlatformException catch (e) {
         print(e.toString());
         erros = true;
         return eventosFavLista;
       } on Exception catch (e) {
         print(e.toString());
+        erros = true;
+        return eventosFavLista;
+      }
+      catch(e){
         erros = true;
         return eventosFavLista;
       }
@@ -156,18 +174,7 @@ class _FavoritesState extends State<Favorites> {
         print(e.toString());
         return eventosFavLista;
       }
-      /*if (resposta.statusCode == 200) {
-        Map<String, dynamic> body = json.decode(resposta.body);
-        Data = Welcome.fromMap(body);
-      }
-      if (Data.result!.isNotEmpty && Data.result!.length > 0) {
-        for (var i = 0; i < Data.result!.length; i++) {
-          eventosFavLista.add(Data.result![i].event);
-        }*/
     }
-    //orderListEvents(eventosFavLista);
-    //}
-    //return eventosFavLista;
   }
 
   @override
@@ -307,43 +314,9 @@ class _FavoritesState extends State<Favorites> {
                           ),
                         )
                       : erros == true
-                          ? Expanded(child: Container(
-                            height: SizeConfig.maxHeight,
-                            width: SizeConfig.maxWidth,
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                                                    Icon(
-                                      Icons.error,
-                                      color: Colors.white,
-                                    ),
-                                    Text('Algo inesperado aconteceu'),
-                                ],
-                              ),
-                            ),
-                          ))
+                          ? Expanded(child: ContainerGeneralError())
                           : Expanded(
-                              child: Container(
-                                height: SizeConfig.maxHeight,
-                                width: SizeConfig.maxWidth,
-                                child: Center(
-                                    child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.network_locked,
-                                      color: Colors.white,
-                                    ),
-                                    Text(
-                                      'Sem net',
-                                      style:
-                                          Theme.of(context).textTheme.headline3,
-                                    ),
-                                  ],
-                                )),
-                              ),
-                            )
+                              child: ContainerNetworkError()) 
                 ],
               ),
             ),
