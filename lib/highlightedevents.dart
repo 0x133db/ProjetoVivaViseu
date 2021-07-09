@@ -448,7 +448,7 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                                     if (eventosemdestaque == null) {
                                       return ContainerNoHighlights();
                                     }
-                                    if (snapshot.hasData) {
+                                    if (snapshot.hasData == false) {
                                       return ContainerNoHighlights();
                                     }
                                     return Swiper(
@@ -561,7 +561,8 @@ class _EventCardState extends State<EventCard> {
   List<String?> listcateg = [];
   late bool errornetworkimage;
 
-  initState() {
+  
+  void initState() {
     eventid = widget.evento.id;
     title = widget.evento.title;
     location = widget.evento.location;

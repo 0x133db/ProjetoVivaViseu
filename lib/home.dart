@@ -54,6 +54,7 @@ PageController pageController = PageController(
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      top: false,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Color.fromARGB(255, 34, 42, 54),
