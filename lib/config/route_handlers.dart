@@ -1,8 +1,6 @@
 import 'package:vivaviseu/adicionar_eventos_calendar.dart';
-import 'package:vivaviseu/allevents.dart';
 import 'package:vivaviseu/detalhesevento.dart';
 import 'package:vivaviseu/eventdetails.dart';
-
 import 'package:vivaviseu/home.dart';
 import 'package:flutter/painting.dart';
 import 'package:fluro/fluro.dart';
@@ -14,12 +12,6 @@ import 'package:vivaviseu/objects.dart';
 var rootHandler = Handler(
     handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
   return HomeScreen();
-});
-
-//Ir para todos eventos
-var alleventsHandler = Handler(
-    handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-  return AllEvents();
 });
 
 //Ir para listagemgeral

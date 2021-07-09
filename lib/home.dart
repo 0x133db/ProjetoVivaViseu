@@ -1,13 +1,9 @@
 import 'dart:collection';
 import 'dart:convert';
 //import 'dart:ffi';
-
-import 'package:animated_search_bar/animated_search_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:vivaviseu/allevents.dart';
 import 'package:vivaviseu/calendar.dart';
 import 'package:vivaviseu/config/router.dart';
 import 'package:vivaviseu/eventdetails.dart';
@@ -21,7 +17,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fluro/fluro.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vivaviseu/searching.dart';
 import 'package:vivaviseu/utils/responsive.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -30,7 +25,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final auth = FirebaseAuth.instance;
+  bool pageview = true;
   int _selectedIndex = 0;
   final List<Widget> _widgetOptions = <Widget>[
     HighlightedEvents(),
@@ -38,77 +33,91 @@ class _HomeScreenState extends State<HomeScreen> {
     Favorites(),
   ];
 
+  void pageChanged(int index) {
+  setState(() {
+    _selectedIndex = index;
+  });
+}
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      //pageController.animateToPage(index, duration: Duration(milliseconds: 500), curve: Curves.ease);
     });
   }
 
+PageController pageController = PageController(
+  initialPage: 0,
+  keepPage: true,
+);
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Color.fromARGB(255, 34, 42, 54),
-      body: Container(child: _widgetOptions.elementAt(_selectedIndex)),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(25),
-        child: Container(
-          height: SizeConfig.heightMultiplier! * 7.5,
-          width: SizeConfig.maxWidth,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-            color: Color.fromARGB(255, 47, 59, 76),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            child: BottomNavigationBar(
-              //Barra de navegação da App
-              showSelectedLabels: false,
-              showUnselectedLabels: false,
-              backgroundColor: Color.fromARGB(255, 47, 59, 76),
-              currentIndex: _selectedIndex,
-              unselectedItemColor: Colors.grey[400],
-              selectedItemColor: Color.fromARGB(255, 233, 168, 3),
-              iconSize: 25,
-              onTap: _onItemTapped,
-              elevation: 0,
-              type: BottomNavigationBarType.fixed,
-              items: <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
+    return SafeArea(
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Color.fromARGB(255, 34, 42, 54),
+        body:Container(child: _widgetOptions.elementAt(_selectedIndex)),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(25),
+          child: Container(
+            height: SizeConfig.heightMultiplier! * 7.5,
+            width: SizeConfig.maxWidth,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              color: Color.fromARGB(255, 47, 59, 76),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              child: BottomNavigationBar(
+                //Barra de navegação da App
+                showSelectedLabels: false,
+                showUnselectedLabels: false,
+                backgroundColor: Color.fromARGB(255, 47, 59, 76),
+                currentIndex: _selectedIndex,
+                unselectedItemColor: Colors.grey[400],
+                selectedItemColor: Color.fromARGB(255, 233, 168, 3),
+                iconSize: 25,
+                onTap: _onItemTapped,
+                elevation: 0,
+                type: BottomNavigationBarType.fixed,
+                items: <BottomNavigationBarItem>[
+                  BottomNavigationBarItem(
+                      icon: Image.asset(
+                        'assets/images/icons/icon_home.png',
+                                              height: 2.3 * SizeConfig.heightMultiplier!,
+                      ),
+                      activeIcon: Image.asset(
+                        'assets/images/icons/icon_home_colored.png',
+                        height: 2.9 * SizeConfig.heightMultiplier!,
+                      ),
+                      label: 'Home',
+                      backgroundColor: Colors.white),
+                  BottomNavigationBarItem(
+                      icon: Image.asset(
+                        'assets/images/icons/icon_calendar.png',
+                                              height: 2.3 * SizeConfig.heightMultiplier!,
+                      ),
+                      activeIcon: Image.asset(
+                        'assets/images/icons/icon_calendar_colored.png',
+                        height: 2.9 * SizeConfig.heightMultiplier!,
+                      ),
+                      label: 'Calendar',
+                      backgroundColor: Colors.white),
+                  BottomNavigationBarItem(
                     icon: Image.asset(
-                      'assets/images/icons/icon_home.png',
+                      'assets/images/icons/icon_favoritemenu.png',
                                             height: 2.3 * SizeConfig.heightMultiplier!,
                     ),
                     activeIcon: Image.asset(
-                      'assets/images/icons/icon_home_colored.png',
+                      'assets/images/icons/icon_favoritemenu_colored.png',
                       height: 2.9 * SizeConfig.heightMultiplier!,
                     ),
-                    label: 'Home',
-                    backgroundColor: Colors.white),
-                BottomNavigationBarItem(
-                    icon: Image.asset(
-                      'assets/images/icons/icon_calendar.png',
-                                            height: 2.3 * SizeConfig.heightMultiplier!,
-                    ),
-                    activeIcon: Image.asset(
-                      'assets/images/icons/icon_calendar_colored.png',
-                      height: 2.9 * SizeConfig.heightMultiplier!,
-                    ),
-                    label: 'Calendar',
-                    backgroundColor: Colors.white),
-                BottomNavigationBarItem(
-                  icon: Image.asset(
-                    'assets/images/icons/icon_favoritemenu.png',
-                                          height: 2.3 * SizeConfig.heightMultiplier!,
+                    label: 'Favorites',
+                    backgroundColor: Colors.white,
                   ),
-                  activeIcon: Image.asset(
-                    'assets/images/icons/icon_favoritemenu_colored.png',
-                    height: 2.9 * SizeConfig.heightMultiplier!,
-                  ),
-                  label: 'Favorites',
-                  backgroundColor: Colors.white,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

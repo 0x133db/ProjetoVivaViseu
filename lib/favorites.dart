@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:connectivity/connectivity.dart';
 
 import 'package:date_format/date_format.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -131,7 +130,7 @@ class _FavoritesState extends State<Favorites> {
       print('Link utilizado para Eventos Favoritos: $eventosfavoritosurl');
       var resposta;
       try {
-        resposta = await http.get(eventosfavoritosurl).onError((error, stackTrace){ erros = true; return Future.value();});
+        resposta = await http.get(eventosfavoritosurl);
       }
       on SocketException catch(e){
         print(e.toString());
@@ -185,7 +184,7 @@ class _FavoritesState extends State<Favorites> {
           child: Padding(
             padding: EdgeInsets.fromLTRB(
                 6 * SizeConfig.widthMultiplier!,
-                1.1 * SizeConfig.heightMultiplier!,
+                2.5 * SizeConfig.heightMultiplier!,
                 6 * SizeConfig.widthMultiplier!,
                 0),
             child: Center(
@@ -202,7 +201,7 @@ class _FavoritesState extends State<Favorites> {
                       ? Expanded(
                           child: Padding(
                             padding: EdgeInsets.only(
-                                top: SizeConfig.heightMultiplier! * 5),
+                                top: SizeConfig.heightMultiplier! * 3),
                             child: FutureBuilder(
                                 future: loadFavorites(),
                                 builder: (BuildContext context,

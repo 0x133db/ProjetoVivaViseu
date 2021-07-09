@@ -67,10 +67,8 @@ class HighlightedEventsState extends State<HighlightedEvents> {
           break;
         }
         setState(() {
-          setState(() {
-            erros = false;
-            _connectionStatus = true;
-          });
+          erros = false;
+          _connectionStatus = true;
           print(_connectionStatus);
         });
         break;
@@ -79,10 +77,8 @@ class HighlightedEventsState extends State<HighlightedEvents> {
           break;
         }
         setState(() {
-          setState(() {
-            erros = false;
-            _connectionStatus = true;
-          });
+          erros = false;
+          _connectionStatus = true;
           print(_connectionStatus);
         });
         break;
@@ -124,38 +120,36 @@ class HighlightedEventsState extends State<HighlightedEvents> {
 
   Future<List<Result>?> loadData() async {
     userPref = await UserPreferences();
-    eventosemdestaque = [];
-    numeroeventos = 0;
+    //eventosemdestaque = [];
     Uri eventosapiUrl =
         Uri.parse("http://vivaviseu.projectbox.pt/api/v1/highlighted_events");
     print('Link utilizado para Eventos em Destaque: $eventosapiUrl');
     if (_connectivityResult != ConnectivityResult.none) {
+      eventosemdestaque = [];
+      numeroeventos = 0;
       print('Conexão $_connectionStatus');
       var resposta;
       try {
-        resposta = await http.get(eventosapiUrl).onError((error, stackTrace) {
-          erros = true;
-          return Future.value();
-        });
+        resposta = await http.get(eventosapiUrl);
       } on SocketException catch (e) {
         print(e.toString());
         erros = true;
-        return eventosemdestaque;
+        throw Exception;
       } on http.ClientException catch (e) {
         print(e.toString());
         erros = true;
-        return eventosemdestaque;
+        throw Exception;
       } on PlatformException catch (e) {
         print(e.toString());
         erros = true;
-        return eventosemdestaque;
+        throw Exception;
       } on Exception catch (e) {
         print(e.toString());
         erros = true;
-        return eventosemdestaque;
+        throw Exception;
       } catch (e) {
         erros = true;
-        return eventosemdestaque;
+        throw Exception;
       }
       try {
         if (resposta.statusCode == 200) {
@@ -174,9 +168,13 @@ class HighlightedEventsState extends State<HighlightedEvents> {
             eventosemdestaque = Data.result;
             return eventosemdestaque;
           }
+        } else {
+          erros = true;
+          return eventosemdestaque;
         }
       } on Exception catch (e) {
         print(e.toString());
+        erros = true;
         return eventosemdestaque;
       }
     }
@@ -192,30 +190,26 @@ class HighlightedEventsState extends State<HighlightedEvents> {
       print('Conexão $_connectionStatus');
       var resposta;
       try {
-        resposta =
-            await http.get(categoriesapiUrl).onError((error, stackTrace) {
-          erros = true;
-          return Future.value();
-        });
+        resposta = await http.get(categoriesapiUrl);
       } on SocketException catch (e) {
         print(e.toString());
         erros = true;
-        return listaCategorias;
+        throw SocketException;
       } on http.ClientException catch (e) {
         print(e.toString());
         erros = true;
-        return listaCategorias;
+        throw http.ClientException;
       } on PlatformException catch (e) {
         print(e.toString());
         erros = true;
-        return listaCategorias;
+        throw PlatformException;
       } on Exception catch (e) {
         print(e.toString());
         erros = true;
-        return listaCategorias;
+        throw Exception;
       } catch (e) {
         erros = true;
-        return listaCategorias;
+        throw Exception;
       }
       try {
         if (resposta.statusCode == 200) {
@@ -441,11 +435,6 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                                   // ignore: missing_return
                                   (BuildContext context,
                                       AsyncSnapshot snapshot) {
-                                if (eventosemdestaque == null) {
-                                  return Container(
-                                    child: Text('Teste Null Eventos'),
-                                  );
-                                }
                                 switch (snapshot.connectionState) {
                                   case ConnectionState.none:
                                     return Container(
@@ -453,6 +442,15 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                                           child: CircularProgressIndicator()),
                                     );
                                   case ConnectionState.done:
+                                    if (erros == true) {
+                                      return ContainerGeneralError();
+                                    }
+                                    if (eventosemdestaque == null) {
+                                      return ContainerNoHighlights();
+                                    }
+                                    if (snapshot.hasData) {
+                                      return ContainerNoHighlights();
+                                    }
                                     return Swiper(
                                         itemCount: numeroeventos,
                                         itemWidth: SizeConfig.maxWidth! * 0.7,
@@ -532,9 +530,9 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                         ),
                       ),
                     )
-                  : erros == true
-                      ? Expanded(child: ContainerGeneralError())
-                      : Expanded(child: ContainerNetworkError())
+                  : _connectionStatus == false
+                      ? Expanded(child: ContainerNetworkError())
+                      : Expanded(child: ContainerGeneralError())
             ]),
           ),
         ));
@@ -598,28 +596,28 @@ class _EventCardState extends State<EventCard> {
         child: Stack(
           children: [
             ShaderMask(
-              shaderCallback: (rect) {
-                return LinearGradient(
-                        begin: Alignment(0, -0.1),
-                        end: Alignment.bottomCenter,
-                        colors: [
-                      Color.fromARGB(255, 34, 42, 54),
-                      Colors.transparent
-                    ])
-                    .createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-              },
-              blendMode: BlendMode.dstIn,
-              child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
-                        image: /*errornetworkimage != false ? */ DecorationImage(
-                            image: NetworkImage(
-                              image,
-                            ),
-                            fit: BoxFit.fill,),
+                shaderCallback: (rect) {
+                  return LinearGradient(
+                      begin: Alignment(0, -0.1),
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color.fromARGB(255, 34, 42, 54),
+                        Colors.transparent
+                      ]).createShader(
+                      Rect.fromLTRB(0, 0, rect.width, rect.height));
+                },
+                blendMode: BlendMode.dstIn,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    image: /*errornetworkimage != false ? */ DecorationImage(
+                      image: NetworkImage(
+                        image,
                       ),
-                    )
-            ),
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                )),
             Align(
               alignment: Alignment.topRight,
               child: Padding(

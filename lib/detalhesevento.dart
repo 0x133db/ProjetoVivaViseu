@@ -22,10 +22,31 @@ class DetalhesEvento extends StatefulWidget {
   _DetalhesEventoState createState() => _DetalhesEventoState();
 }
 
-class _DetalhesEventoState extends State<DetalhesEvento> {
+class _DetalhesEventoState extends State<DetalhesEvento>
+    with TickerProviderStateMixin {
   late GoogleMapController mapController;
   late BitmapDescriptor mapIcon;
   late UserPreferences userPref;
+
+  //Teste
+  /*
+  late AnimationController _ColorAnimationController;
+  late AnimationController _TextAnimationController;
+  late Animation _colorTween, _iconColorTween;
+  late Animation<Offset> _transTween;
+
+  bool _scrollListener(ScrollNotification scrollInfo) {
+    if (scrollInfo.metrics.axis == Axis.vertical) {
+      _ColorAnimationController.animateTo(scrollInfo.metrics.pixels / 350);
+
+      _TextAnimationController.animateTo(
+          (scrollInfo.metrics.pixels - 350) / 50);
+      return true;
+    }
+    return false;
+  }*/
+
+  //
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -55,6 +76,22 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
         .then((onValue) {
       mapIcon = onValue;
     });
+
+    //
+    /*_ColorAnimationController =
+        AnimationController(vsync: this, duration: Duration(seconds: 0));
+    _colorTween = ColorTween(begin: Colors.transparent, end: Color(0xFFee4c4f))
+        .animate(_ColorAnimationController);
+    _iconColorTween = ColorTween(begin: Colors.grey, end: Colors.white)
+        .animate(_ColorAnimationController);
+
+    _TextAnimationController =
+        AnimationController(vsync: this, duration: Duration(seconds: 0));
+
+    _transTween = Tween(begin: Offset(-10, 40), end: Offset(-10, 0))
+        .animate(_TextAnimationController);*/
+    //
+    super.initState();
   }
 
   @override
@@ -156,7 +193,8 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                   color: Colors.black26,
                                   borderRadius: BorderRadius.only(
                                       bottomLeft: Radius.circular(
-                                          SizeConfig.heightMultiplier! * 1.11),
+                                          SizeConfig.heightMultiplier! *
+                                              1.11),
                                       bottomRight: Radius.circular(
                                           SizeConfig.heightMultiplier! *
                                               1.11))),
@@ -183,7 +221,8 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                 left: 1,
                                 child: Padding(
                                   padding: EdgeInsets.only(
-                                      bottom: SizeConfig.heightMultiplier! * 2,
+                                      bottom:
+                                          SizeConfig.heightMultiplier! * 2,
                                       left: SizeConfig.widthMultiplier! * 7),
                                   child: Container(
                                     child: Column(
@@ -209,7 +248,8 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.start,
                                                   crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
+                                                      CrossAxisAlignment
+                                                          .center,
                                                   children: [
                                                     Image.asset(
                                                       'assets/images/icons/icon_eventdetailscalendar.png',
@@ -236,11 +276,7 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                                                   ]) +
                                                               ' de ' +
                                                               formatDate(
-                                                                  _event
-                                                                      .dates![0]
-                                                                      .date!
-                                                                      .eventDate!,
-                                                                  [MM],
+                                                                  _event.dates![0].date!.eventDate!, [MM],
                                                                   locale:
                                                                       PortugueseDateLocale()) +
                                                               ' ' +
@@ -255,7 +291,9 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                                           style: Theme.of(context)
                                                               .textTheme
                                                               .headline4!
-                                                              .copyWith(fontSize: 1.6 * SizeConfig.textMultiplier!)),
+                                                              .copyWith(
+                                                                  fontSize: 1.6 *
+                                                                      SizeConfig.textMultiplier!)),
                                                     ),
                                                     Image.asset(
                                                       'assets/images/icons/icon_eventdetailswatch.png',
@@ -283,7 +321,8 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                                               'h' +
                                                               formatDate(
                                                                   _event
-                                                                      .dates![0]
+                                                                      .dates![
+                                                                          0]
                                                                       .date!
                                                                       .timeStart!,
                                                                   [
@@ -307,7 +346,8 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                                           0.1),
                                                   child: Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment.start,
+                                                        MainAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Image.asset(
                                                         'assets/images/icons/icon_eventdetailslocation.png',
@@ -490,32 +530,36 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                 top: SizeConfig.heightMultiplier! * 1.5,
                                 left: SizeConfig.widthMultiplier! * 7,
                                 right: SizeConfig.widthMultiplier! * 7),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Container(
-                                  height: SizeConfig.heightMultiplier! * 2.5,
-                                  width: SizeConfig.maxWidth,
-                                  child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: _event.categories!.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        var categoryname = _event
-                                            .categories![index].category!.name!;
-                                        return Padding(
-                                          padding: EdgeInsets.only(
-                                              right:
-                                                  SizeConfig.widthMultiplier! *
-                                                      3),
-                                          child:
-                                              /*CategoryBasic(
-                                            name: categoryname,
-                                          ),*/
-                                              CategoryWidget(context,
-                                                  categorytext: categoryname),
-                                        );
-                                      })),
-                            ),
+                            child: 
+                              /*child:*/ SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Container(
+                                    height: SizeConfig.heightMultiplier! * 2.5,
+                                    width: SizeConfig.maxWidth,
+                                    child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: _event.categories!.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          var categoryname = _event
+                                              .categories![index]
+                                              .category!
+                                              .name!;
+                                          return Padding(
+                                            padding: EdgeInsets.only(
+                                                right: SizeConfig
+                                                        .widthMultiplier! *
+                                                    3),
+                                            child:
+                                                /*CategoryBasic(
+                                              name: categoryname,
+                                            ),*/
+                                                CategoryWidget(context,
+                                                    categorytext: categoryname),
+                                          );
+                                        })),
+                              ),
+                            
                           ),
                           Padding(
                             padding: EdgeInsets.only(
@@ -594,17 +638,18 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                 right: SizeConfig.widthMultiplier! * 7,
                                 bottom: SizeConfig.widthMultiplier! * 2),
                             child: Container(
-                              height:
-                                  SizeConfig.heightMultiplier! * 6.5, //alterar
+                              height: SizeConfig.heightMultiplier! *
+                                  6.5, //alterar
                               width: SizeConfig.maxWidth,
                               child: Row(
                                 children: [
                                   ClipRRect(
-                                      borderRadius: BorderRadius.circular(100),
+                                      borderRadius:
+                                          BorderRadius.circular(100),
                                       child: Image.network(
                                         'http://${_event.organizer!.image}',
-                                        height:
-                                            SizeConfig.heightMultiplier! * 5.9,
+                                        height: SizeConfig.heightMultiplier! *
+                                            5.9,
                                       )),
                                   Padding(
                                     padding: EdgeInsets.only(
@@ -612,8 +657,9 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                             SizeConfig.widthMultiplier! * 3),
                                     child: Text(
                                       _event.organizer!.name!,
-                                      style:
-                                          Theme.of(context).textTheme.headline4,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline4,
                                     ),
                                   )
                                 ],
@@ -631,16 +677,17 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                           ),
                           Padding(
                             padding: EdgeInsets.only(
-                                top: SizeConfig.heightMultiplier! * 1.3,
-                                left: SizeConfig.widthMultiplier! * 7,
-                                right: SizeConfig.widthMultiplier! * 7,
-                                bottom: SizeConfig.heightMultiplier! * 2,
-                                ),
+                              top: SizeConfig.heightMultiplier! * 1.3,
+                              left: SizeConfig.widthMultiplier! * 7,
+                              right: SizeConfig.widthMultiplier! * 7,
+                              bottom: SizeConfig.heightMultiplier! * 2,
+                            ),
                             child: Container(
                                 height: SizeConfig.heightMultiplier! * 10,
                                 width: SizeConfig.maxWidth,
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
                                   children: [
                                     Flexible(
                                       flex: 1,
@@ -663,7 +710,8 @@ class _DetalhesEventoState extends State<DetalhesEvento> {
                                                     right: SizeConfig
                                                             .widthMultiplier! *
                                                         3),
-                                                child: Links(text: linkList[index])
+                                                child: Links(
+                                                    text: linkList[index])
                                                 /*CategoryWidget(context,
                                                       categorytext: categoryname),*/
                                                 );
@@ -944,9 +992,8 @@ class Links extends StatelessWidget {
     String iconpath = getIconPath(uri);
     return Padding(
       padding: EdgeInsets.only(
-                                          top: SizeConfig.heightMultiplier! * 0.5,
-                                          bottom:
-                                              SizeConfig.heightMultiplier! * 0.5),
+          top: SizeConfig.heightMultiplier! * 0.5,
+          bottom: SizeConfig.heightMultiplier! * 0.5),
       child: Container(
         //color: Colors.yellow,
         //height: SizeConfig.heightMultiplier! * 5,

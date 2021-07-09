@@ -21,8 +21,6 @@ class Routes {
       return;
     });
     router.define(root, handler: rootHandler);
-    router.define(allevents,
-        handler: alleventsHandler, transitionType: TransitionType.inFromLeft);
     router.define(listagemgeral,
         handler: listagemgeralHandler,
         transitionType: TransitionType.inFromLeft);
