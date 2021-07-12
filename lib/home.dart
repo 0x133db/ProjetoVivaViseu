@@ -86,7 +86,7 @@ PageController pageController = PageController(
                   BottomNavigationBarItem(
                       icon: Image.asset(
                         'assets/images/icons/icon_home.png',
-                                              height: 2.3 * SizeConfig.heightMultiplier!,
+                                              height: 2.9 * SizeConfig.heightMultiplier!,
                       ),
                       activeIcon: Image.asset(
                         'assets/images/icons/icon_home_colored.png',
@@ -97,7 +97,7 @@ PageController pageController = PageController(
                   BottomNavigationBarItem(
                       icon: Image.asset(
                         'assets/images/icons/icon_calendar.png',
-                                              height: 2.3 * SizeConfig.heightMultiplier!,
+                                              height: 2.9 * SizeConfig.heightMultiplier!,
                       ),
                       activeIcon: Image.asset(
                         'assets/images/icons/icon_calendar_colored.png',
@@ -108,7 +108,7 @@ PageController pageController = PageController(
                   BottomNavigationBarItem(
                     icon: Image.asset(
                       'assets/images/icons/icon_favoritemenu.png',
-                                            height: 2.3 * SizeConfig.heightMultiplier!,
+                                            height: 2.9 * SizeConfig.heightMultiplier!,
                     ),
                     activeIcon: Image.asset(
                       'assets/images/icons/icon_favoritemenu_colored.png',

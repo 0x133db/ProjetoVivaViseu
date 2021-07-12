@@ -232,7 +232,6 @@ class HighlightedEventsState extends State<HighlightedEvents> {
 
   @override
   Widget build(BuildContext context) {
-    print('Dentro widg $_connectionStatus');
     return Scaffold(
         backgroundColor: Color.fromARGB(255, 34, 42, 54),
         resizeToAvoidBottomInset: false,
@@ -317,7 +316,8 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                                             return Container(
                                               child: Center(
                                                   child:
-                                                      CircularProgressIndicator()),
+                                                      CircularProgressIndicator(
+                                                      )),
                                             );
                                           case ConnectionState.done:
                                             if (numerocategorias == 0) {
@@ -463,39 +463,7 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                                           var event =
                                               snapshot.data[index].event;
                                           var eventid =
-                                              snapshot.data[index].event.id;
-                                          var title =
-                                              snapshot.data[index].event.title;
-                                          var location = snapshot
-                                              .data[index].event.location;
-                                          var startdate = snapshot
-                                              .data[index].event.startDate;
-                                          String formattedDate = formatDate(
-                                                  event.dates![0].date!
-                                                      .eventDate!,
-                                                  [dd]) +
-                                              ' de ' +
-                                              formatDate(
-                                                  event.dates![0].date!
-                                                      .eventDate!,
-                                                  [MM],
-                                                  locale:
-                                                      PortugueseDateLocale()) +
-                                              ' ' +
-                                              formatDate(
-                                                  event.dates![0].date!
-                                                      .eventDate!,
-                                                  [yyyy]);
-                                          String timeevent =
-                                              '${formatDate(event.dates![0].date!.timeStart!, [
-                                                    HH
-                                                  ])}' +
-                                                  'h' +
-                                                  '${formatDate(event.dates![0].date!.timeStart!, [
-                                                    nn
-                                                  ])}';
-                                          var image =
-                                              'http://${snapshot.data[index].event.images[0].image.original}';
+                                              snapshot.data[index].event.id;                                       
                                           List<String?> listcateg = [];
                                           int numcateg =
                                               event.categories.length;
@@ -656,19 +624,16 @@ class _EventCardState extends State<EventCard> {
                         Positioned(
                             left: 0,
                             right: 0,
-                            top: 10,
+                            top: 0,
                             bottom: 0,
                             child: widget.up.isFavorito(widget.evento.id!)
                                 ? Image.asset(
                                     'assets/images/icons/icon_favorites.png',
-                                    scale: 2.2,
-                                    width: 10 * SizeConfig.imageSizeMultiplier!,
+                                    height: SizeConfig.heightMultiplier! *1.5,
                                   )
                                 : Image.asset(
                                     'assets/images/icons/icon_favorite.png',
-                                    scale: 2.2,
-                                    width:
-                                        10 * SizeConfig.imageSizeMultiplier!))
+                                    height: SizeConfig.heightMultiplier! *1.5,))
                       ],
                     ),
                   ),
