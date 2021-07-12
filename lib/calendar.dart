@@ -32,55 +32,16 @@ class _CalendarState extends State<Calendar> {
   final ValueNotifier<bool> eventschange = ValueNotifier(false);
   late UserPreferences teste;
 
-    bool _connectionStatus = true;
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
   @override
   void initState() {
     print('[---------- Página de Calendário de Eventos ----------]');
-    super.initState();
+    //super.initState();
     teste = UserPreferences();
-        initConnectivity();
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
 
-    @override
+  @override
   void dispose() {
-    _connectivitySubscription.cancel();
     super.dispose();
-  }
-
-    Future<void> initConnectivity() async {
-    ConnectivityResult result = ConnectivityResult.none;
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      print(e.toString());
-    }
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    switch (result) {
-      case ConnectivityResult.wifi:
-              setState(() => _connectionStatus = true);
-        break;
-      case ConnectivityResult.mobile:
-              setState(() => _connectionStatus = true);
-        break;
-      case ConnectivityResult.none:
-        setState(() => _connectionStatus = false);
-        break;
-      default:
-        setState(() => _connectionStatus = true);
-        break;
-    }
   }
 
   Future<void>? loadeventsmap() async {
@@ -89,58 +50,61 @@ class _CalendarState extends State<Calendar> {
         Uri.parse("http://vivaviseu.projectbox.pt/api/v1/events");
     print('Link utilizado para Construir Mapa de Eventos: $eventosapiUrl');
     var res;
-    try{    res = await http.get(eventosapiUrl);      }on PlatformException catch (e){
-        print(e.toString());
-                return;
-      }on Exception catch(e){
-        print(e.toString());
-                return;
-      }
-    try{
-    if (res.statusCode == 200) {
-      Map<String, dynamic> body = json.decode(res.body);
-      Welcome Data = Welcome.fromMap(body);
-      if(Data.result != null){
-      print("Numero de Eventos Total: ${Data.result!.length}");
-      int i;
-      for (i = 0; i < Data.result!.length; i++) {
-        if (Data.result![i].event!.hasRecurringDates == true) {
-          for (int x = 0; x < Data.result![i].event!.dates!.length; x++) {
-            var date = Data.result![i].event!.dates![x].date!.eventDate;
-            Event event = Data.result![i].event!;
-            if (mapaeventos[date!] == null) {
-              mapaeventos[date] = [];
-            }
-            if (mapaeventos[date]!.contains(event.id)) {
-              return;
-            } else {
-              mapaeventos[date]!.add(event);
-            }
-          }
-        } else {
-          var startdate = Data.result![i].event!.startDate;
-          var enddate = Data.result![i].event!.endDate;
-          var daysdif = enddate!.difference(startdate!).inDays;
-          var date = startdate;
-          print('dias diferença : $daysdif');
-          for (int x = 0; x <= daysdif; x++) {
-            Event event = Data.result![i].event!;
-            if (mapaeventos[date] == null) {
-              mapaeventos[date] = [];
-            }
-            if (mapaeventos[date]!.contains(event.id)) {
-              return;
-            } else {
-              mapaeventos[date]!.add(event);
-            }
-            date = date.add(Duration(days: 1));
-          }
-        }
-      }
-      print('$mapaeventos');
+    try {
+      res = await http.get(eventosapiUrl);
+    } on PlatformException catch (e) {
+      print(e.toString());
+      return;
+    } on Exception catch (e) {
+      print(e.toString());
       return;
     }
-    }}on Exception catch(e){
+    try {
+      if (res.statusCode == 200) {
+        Map<String, dynamic> body = json.decode(res.body);
+        Welcome Data = Welcome.fromMap(body);
+        if (Data.result != null) {
+          print("Numero de Eventos Total: ${Data.result!.length}");
+          int i;
+          for (i = 0; i < Data.result!.length; i++) {
+            if (Data.result![i].event!.hasRecurringDates == true) {
+              for (int x = 0; x < Data.result![i].event!.dates!.length; x++) {
+                var date = Data.result![i].event!.dates![x].date!.eventDate;
+                Event event = Data.result![i].event!;
+                if (mapaeventos[date!] == null) {
+                  mapaeventos[date] = [];
+                }
+                if (mapaeventos[date]!.contains(event.id)) {
+                  return;
+                } else {
+                  mapaeventos[date]!.add(event);
+                }
+              }
+            } else {
+              var startdate = Data.result![i].event!.startDate;
+              var enddate = Data.result![i].event!.endDate;
+              var daysdif = enddate!.difference(startdate!).inDays;
+              var date = startdate;
+              print('dias diferença : $daysdif');
+              for (int x = 0; x <= daysdif; x++) {
+                Event event = Data.result![i].event!;
+                if (mapaeventos[date] == null) {
+                  mapaeventos[date] = [];
+                }
+                if (mapaeventos[date]!.contains(event.id)) {
+                  return;
+                } else {
+                  mapaeventos[date]!.add(event);
+                }
+                date = date.add(Duration(days: 1));
+              }
+            }
+          }
+          print('$mapaeventos');
+          return;
+        }
+      }
+    } on Exception catch (e) {
       print(e.toString());
       return;
     }
@@ -184,7 +148,7 @@ class _CalendarState extends State<Calendar> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(25, 10, 25, 0),
-          child: _connectionStatus == true ? FutureBuilder(
+          child: FutureBuilder(
               future: loadeventsmap(),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 switch (snapshot.connectionState) {
@@ -215,7 +179,6 @@ class _CalendarState extends State<Calendar> {
                           ),
                           Expanded(
                             flex: 6,
-                            
                             child: Padding(
                               padding: EdgeInsets.only(
                                   top: 3 * SizeConfig.heightMultiplier!),
@@ -236,7 +199,7 @@ class _CalendarState extends State<Calendar> {
                       ),
                     );
                 }
-              }) : ContainerNetworkError(),
+              }),
         ),
       ),
     );
@@ -289,7 +252,7 @@ class _CalendarTestState extends State<CalendarTest> {
   @override
   void initState() {
     print('[---------- Loading Eventos ----------]');
-    //super.initState();
+    super.initState();
     if (_getEventsForDay(_selectedDay).isNotEmpty) {
       widget.customFunction(buildListEvent(_getEventsForDay(_selectedDay)));
     }
@@ -394,7 +357,8 @@ class _CalendarTestState extends State<CalendarTest> {
             weekendTextStyle: TextStyle(color: Colors.white),
             defaultTextStyle: TextStyle(color: Colors.white),
             markersMaxCount: 4,
-            markerMargin: EdgeInsets.only(top: SizeConfig.heightMultiplier! * 0.5),
+            markerMargin:
+                EdgeInsets.only(top: SizeConfig.heightMultiplier! * 0.5),
             markersAlignment: Alignment.bottomCenter,
             canMarkersOverflow: false,
             markerDecoration: BoxDecoration(
@@ -459,7 +423,7 @@ class _EventsDayListState extends State<EventsDayList> {
     }
     Uri eventosdiaurl = Uri.parse(url);
     print('Link utilizado para Eventos Favoritos: $eventosdiaurl');
-    var resposta = await http.get(eventosdiaurl);//trycatch
+    var resposta = await http.get(eventosdiaurl); //trycatch
     Welcome Data = new Welcome();
     if (resposta.statusCode == 200) {
       Map<String, dynamic> body = json.decode(resposta.body);
@@ -515,8 +479,7 @@ class _EventsDayListState extends State<EventsDayList> {
                     var location = event.location;
                     var timeStart = event.dates[0].date.timeStart;
                     var eventdate = event.dates[0].date.eventDate;
-                    var image =
-                        'http://${event.images[0].image.thumbnail}';
+                    var image = 'http://${event.images[0].image.thumbnail}';
                     UserPreferences teste = widget.teste;
                     List<String> listcateg = [];
                     int numcateg = event.categories.length;
@@ -524,11 +487,12 @@ class _EventsDayListState extends State<EventsDayList> {
                       listcateg.add(event.categories[i].category.name);
                     }
                     return Padding(
-                      padding: EdgeInsets.only(bottom: SizeConfig.heightMultiplier! * 2),
+                      padding: EdgeInsets.only(
+                          bottom: SizeConfig.heightMultiplier! * 2),
                       child: GestureDetector(
-                        onTap: (){
-                                                  Router_.router.navigateTo(context,
-                                      '/eventdetails?eventoid=$eventoid');
+                        onTap: () {
+                          Router_.router.navigateTo(
+                              context, '/eventdetails?eventoid=$eventoid');
                         },
                         child: WidgetImagemDetalhesEventos(
                           evento: event,
