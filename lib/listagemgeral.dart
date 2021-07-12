@@ -353,15 +353,13 @@ class _WidgetListaCategoriasState extends State<WidgetListaCategorias> {
                               return ContainerNetworkError();
                             case ConnectionState.waiting:
                               return Container(
-                                child:
-                                    Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )),
+                                child: Center(
+                                    child: Theme(
+                                  data: Theme.of(context).copyWith(
+                                    accentColor: Color.fromRGBO(233, 168, 3, 1),
+                                  ),
+                                  child: CircularProgressIndicator(),
+                                )),
                               );
                             case ConnectionState.done:
                               return ListView.builder(
@@ -392,15 +390,13 @@ class _WidgetListaCategoriasState extends State<WidgetListaCategorias> {
                                   });
                             case ConnectionState.active:
                               return Container(
-                                child:
-                                    Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )),
+                                child: Center(
+                                    child: Theme(
+                                  data: Theme.of(context).copyWith(
+                                    accentColor: Color.fromRGBO(233, 168, 3, 1),
+                                  ),
+                                  child: CircularProgressIndicator(),
+                                )),
                               );
                           }
                         })
@@ -638,26 +634,24 @@ class _ListagemporcategoriaState extends State<Listagemporcategoria> {
                   case ConnectionState.waiting:
                     print('aqui $eventosalistar');
                     return Container(
-                      child: Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )),
+                      child: Center(
+                          child: Theme(
+                        data: Theme.of(context).copyWith(
+                          accentColor: Color.fromRGBO(233, 168, 3, 1),
+                        ),
+                        child: CircularProgressIndicator(),
+                      )),
                     );
                   case ConnectionState.active:
                     print('aqui2');
                     return Container(
-                        child: Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )));
+                        child: Center(
+                            child: Theme(
+                      data: Theme.of(context).copyWith(
+                        accentColor: Color.fromRGBO(233, 168, 3, 1),
+                      ),
+                      child: CircularProgressIndicator(),
+                    )));
                 }
               },
             ),
@@ -873,14 +867,13 @@ class _ListagemtodoseventosState extends State<Listagemtodoseventos> {
                       switch (snapshot.connectionState) {
                         case ConnectionState.none:
                           return Container(
-                            child: Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )),
+                            child: Center(
+                                child: Theme(
+                              data: Theme.of(context).copyWith(
+                                accentColor: Color.fromRGBO(233, 168, 3, 1),
+                              ),
+                              child: CircularProgressIndicator(),
+                            )),
                           );
                         case ConnectionState.done:
                           if (erros == true) {
@@ -924,26 +917,23 @@ class _ListagemtodoseventosState extends State<Listagemtodoseventos> {
                               });
                         case ConnectionState.waiting:
                           return Container(
-                            child: Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )),
+                            child: Center(
+                                child: Theme(
+                              data: Theme.of(context).copyWith(
+                                accentColor: Color.fromRGBO(233, 168, 3, 1),
+                              ),
+                              child: CircularProgressIndicator(),
+                            )),
                           );
                         case ConnectionState.active:
                           return Container(
-                              child:
-                                  Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )));
+                              child: Center(
+                                  child: Theme(
+                            data: Theme.of(context).copyWith(
+                              accentColor: Color.fromRGBO(233, 168, 3, 1),
+                            ),
+                            child: CircularProgressIndicator(),
+                          )));
                       }
                     },
                   ))
@@ -977,7 +967,7 @@ class _ListagemporpesquisaState extends State<Listagemporpesquisa> {
   @override
   void initState() {
     print('[---------- Widget Listagem Pesquisa ${widget.text} ----------]');
-    super.initState();
+    //super.initState();
     initConnectivity();
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
@@ -1057,7 +1047,7 @@ class _ListagemporpesquisaState extends State<Listagemporpesquisa> {
   Future<List<Event>?> search(String content) async {
     up = await UserPreferences();
     Uri searchapiUrl = Uri.parse(
-        "http://vivaviseu.projectbox.pt/api/v1/events?page=1&category=1&organizer=1&query=$content");
+        "http://vivaviseu.projectbox.pt/api/v1/events?query=$content");
     print('Link utilizado para Pesquisa de Eventos: $searchapiUrl');
     var resposta;
     try {
@@ -1088,10 +1078,12 @@ class _ListagemporpesquisaState extends State<Listagemporpesquisa> {
         Welcome Data = Welcome.fromMap(body);
         print("Número de resultados de pesquisa: ${Data.result!.length}");
         numeroeventos = Data.result!.length;
+        eventosalistar.clear();
         for (int i = 0; i < Data.result!.length; i++) {
+          if (eventosalistar.length > Data.result!.length) {
+            return eventosalistar;
+          }
           eventosalistar.add(Data.result![i].event!);
-          print(
-              '#Evento: [ID:${Data.result![i].event!.id}] , Título: ${Data.result![i].event!.title} , Organizador: ${Data.result![i].event!.organizer!.name}');
         }
         orderListEvents(eventosalistar);
         return eventosalistar;
@@ -1118,14 +1110,13 @@ class _ListagemporpesquisaState extends State<Listagemporpesquisa> {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:
                     return Container(
-                      child: Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )),
+                      child: Center(
+                          child: Theme(
+                        data: Theme.of(context).copyWith(
+                          accentColor: Color.fromRGBO(233, 168, 3, 1),
+                        ),
+                        child: CircularProgressIndicator(),
+                      )),
                     );
                   case ConnectionState.done:
                     if (erros == true) {
@@ -1170,25 +1161,23 @@ class _ListagemporpesquisaState extends State<Listagemporpesquisa> {
                         });
                   case ConnectionState.waiting:
                     return Container(
-                      child: Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )),
+                      child: Center(
+                          child: Theme(
+                        data: Theme.of(context).copyWith(
+                          accentColor: Color.fromRGBO(233, 168, 3, 1),
+                        ),
+                        child: CircularProgressIndicator(),
+                      )),
                     );
                   case ConnectionState.active:
                     return Container(
-                        child: Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )));
+                        child: Center(
+                            child: Theme(
+                      data: Theme.of(context).copyWith(
+                        accentColor: Color.fromRGBO(233, 168, 3, 1),
+                      ),
+                      child: CircularProgressIndicator(),
+                    )));
                 }
               },
             ),
