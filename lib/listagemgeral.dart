@@ -351,17 +351,19 @@ class _WidgetListaCategoriasState extends State<WidgetListaCategorias> {
                           switch (snapshot.connectionState) {
                             case ConnectionState.none:
                               return ContainerNetworkError();
-                            /*Container(
-                                child:
-                                    Center(child: CircularProgressIndicator()),
-                              );*/
                             case ConnectionState.waiting:
                               return Container(
                                 child:
-                                    Center(child: CircularProgressIndicator()),
+                                    Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                               );
                             case ConnectionState.done:
-                              print('FutureBuilder');
                               return ListView.builder(
                                   scrollDirection: Axis.horizontal,
                                   itemCount: numerocategorias,
@@ -375,18 +377,15 @@ class _WidgetListaCategoriasState extends State<WidgetListaCategorias> {
                                           right: 2.2 *
                                               SizeConfig.widthMultiplier!),
                                       child: categoryid == selectedcategory
-                                          //categoryid == widget.alreadyselected
                                           ? CategoryTab(
                                               categoryname: categoryname,
                                               id: categoryid,
-                                              //preselected: true,
                                               selected: listController,
                                               buttons: widget.buttons,
                                             )
                                           : CategoryTab(
                                               categoryname: categoryname,
                                               id: categoryid,
-                                              //preselected: false,
                                               selected: listController,
                                               buttons: widget.buttons),
                                     );
@@ -394,7 +393,14 @@ class _WidgetListaCategoriasState extends State<WidgetListaCategorias> {
                             case ConnectionState.active:
                               return Container(
                                 child:
-                                    Center(child: CircularProgressIndicator()),
+                                    Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                               );
                           }
                         })
@@ -632,12 +638,26 @@ class _ListagemporcategoriaState extends State<Listagemporcategoria> {
                   case ConnectionState.waiting:
                     print('aqui $eventosalistar');
                     return Container(
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                     );
                   case ConnectionState.active:
                     print('aqui2');
                     return Container(
-                        child: Center(child: CircularProgressIndicator()));
+                        child: Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )));
                 }
               },
             ),
@@ -646,91 +666,6 @@ class _ListagemporcategoriaState extends State<Listagemporcategoria> {
             ? ContainerNetworkError()
             : ContainerGeneralError();
   }
-
-  /*@override
-  Widget build(BuildContext context) {
-    return _connectionStatus == true ? Container(
-      height: SizeConfig.maxHeight,
-      width: SizeConfig.maxWidth,
-      child: eventosalistar.isEmpty ? FutureBuilder(
-        future: loadData(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-              return Container(
-                child: Center(child: ContainerNetworkError()),
-              );
-            case ConnectionState.done:
-              return eventosalistar.isEmpty ? ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  physics: ClampingScrollPhysics(),
-                  itemCount: numeroeventos,
-                  itemBuilder: (BuildContext context, int index) {
-                    Event event = snapshot.data[index].event;
-                    List<String?> listcateg = [];
-                    int numcateg = event.categories!.length;
-                    for (var i = 0; i < numcateg; i++) {
-                      listcateg.add(event.categories![i].category!.name);
-                    }
-                    bool imagebool = true;
-                    index == numeroeventos! - 1
-                        ? imagebool = false
-                        : imagebool = true;
-                    return GestureDetector(
-                      onTap: () {
-                        Router_.router.navigateTo(
-                            context, '/eventdetails?eventoid=${event.id}');
-                      },
-                      child: WidgetContainerEventos(
-                        evento: event,
-                        userPreferences: up,
-                        listacategorias: listcateg,
-                        imagebool: imagebool,
-                      ),
-                    );
-                  }):ContainerNoEvents();;
-            case ConnectionState.waiting:
-              return Container(
-                child: Center(child: CircularProgressIndicator()),
-              );
-            case ConnectionState.active:
-              return Container(
-                  child: Center(child: CircularProgressIndicator()));
-          }
-        },
-      ):ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  physics: ClampingScrollPhysics(),
-                  itemCount: numeroeventos,
-                  itemBuilder: (BuildContext context, int index) {
-                    /*if(eventosalistar.isEmpty || numeroeventos == 0){
-                      return ContainerNoEvents();
-                    }*/
-                    Event event = eventosalistar[index]!.event!;
-                    List<String?> listcateg = [];
-                    int numcateg = event.categories!.length;
-                    for (var i = 0; i < numcateg; i++) {
-                      listcateg.add(event.categories![i].category!.name);
-                    }
-                    bool imagebool = true;
-                    index == numeroeventos! - 1
-                        ? imagebool = false
-                        : imagebool = true;
-                    return GestureDetector(
-                      onTap: () {
-                        Router_.router.navigateTo(
-                            context, '/eventdetails?eventoid=${event.id}');
-                      },
-                      child: WidgetContainerEventos(
-                        evento: event,
-                        userPreferences: up,
-                        listacategorias: listcateg,
-                        imagebool: imagebool,
-                      ),
-                    );
-                  }),
-    ): ContainerNetworkError();
-  }*/
 }
 
 class Listagemtodoseventos extends StatefulWidget {
@@ -938,7 +873,14 @@ class _ListagemtodoseventosState extends State<Listagemtodoseventos> {
                       switch (snapshot.connectionState) {
                         case ConnectionState.none:
                           return Container(
-                            child: Center(child: CircularProgressIndicator()),
+                            child: Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                           );
                         case ConnectionState.done:
                           if (erros == true) {
@@ -982,12 +924,26 @@ class _ListagemtodoseventosState extends State<Listagemtodoseventos> {
                               });
                         case ConnectionState.waiting:
                           return Container(
-                            child: Center(child: CircularProgressIndicator()),
+                            child: Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                           );
                         case ConnectionState.active:
                           return Container(
                               child:
-                                  Center(child: CircularProgressIndicator()));
+                                  Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )));
                       }
                     },
                   ))
@@ -1162,7 +1118,14 @@ class _ListagemporpesquisaState extends State<Listagemporpesquisa> {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:
                     return Container(
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                     );
                   case ConnectionState.done:
                     if (erros == true) {
@@ -1207,11 +1170,25 @@ class _ListagemporpesquisaState extends State<Listagemporpesquisa> {
                         });
                   case ConnectionState.waiting:
                     return Container(
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                     );
                   case ConnectionState.active:
                     return Container(
-                        child: Center(child: CircularProgressIndicator()));
+                        child: Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )));
                 }
               },
             ),

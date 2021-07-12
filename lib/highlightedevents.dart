@@ -308,15 +308,27 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                                           case ConnectionState.none:
                                             return Container(
                                               child: Center(
-                                                  child:
-                                                      CircularProgressIndicator()),
+                                                  child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                                             );
                                           case ConnectionState.waiting:
                                             return Container(
                                               child: Center(
                                                   child:
-                                                      CircularProgressIndicator(
-                                                      )),
+                                                      Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                                             );
                                           case ConnectionState.done:
                                             if (numerocategorias == 0) {
@@ -368,7 +380,14 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                                             return Container(
                                               child: Center(
                                                   child:
-                                                      CircularProgressIndicator()),
+                                                      Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                                             );
                                         }
                                       }),
@@ -438,7 +457,14 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                                   case ConnectionState.none:
                                     return Container(
                                       child: Center(
-                                          child: CircularProgressIndicator()),
+                                          child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                                     );
                                   case ConnectionState.done:
                                     if (erros == true) {
@@ -462,7 +488,7 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                                           var event =
                                               snapshot.data[index].event;
                                           var eventid =
-                                              snapshot.data[index].event.id;                                       
+                                              snapshot.data[index].event.id;
                                           List<String?> listcateg = [];
                                           int numcateg =
                                               event.categories.length;
@@ -483,7 +509,14 @@ class HighlightedEventsState extends State<HighlightedEvents> {
                                     return Container(
                                       height: 400,
                                       child: Center(
-                                          child: CircularProgressIndicator()),
+                                          child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                                     );
                                   case ConnectionState.active:
                                     return Container(
@@ -528,7 +561,6 @@ class _EventCardState extends State<EventCard> {
   List<String?> listcateg = [];
   late bool errornetworkimage;
 
-  
   void initState() {
     eventid = widget.evento.id;
     title = widget.evento.title;
@@ -628,11 +660,12 @@ class _EventCardState extends State<EventCard> {
                             child: widget.up.isFavorito(widget.evento.id!)
                                 ? Image.asset(
                                     'assets/images/icons/icon_favorites.png',
-                                    height: SizeConfig.heightMultiplier! *1.5,
+                                    height: SizeConfig.heightMultiplier! * 1.5,
                                   )
                                 : Image.asset(
                                     'assets/images/icons/icon_favorite.png',
-                                    height: SizeConfig.heightMultiplier! *1.5,))
+                                    height: SizeConfig.heightMultiplier! * 1.5,
+                                  ))
                       ],
                     ),
                   ),
@@ -665,7 +698,7 @@ class _EventCardState extends State<EventCard> {
                               ),
                               listcateg.length > 1
                                   ? CategoryplusWidget(context,
-                                      categorytext: '+1')
+                                      categorytext: '+${listcateg.length -1}')
                                   : Container(),
                             ],
                           ),

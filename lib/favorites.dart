@@ -59,7 +59,10 @@ class _FavoritesState extends State<Favorites> {
           break;
         }
         setState(() {
-          setState(() {erros = false; _connectionStatus = true;});
+          setState(() {
+            erros = false;
+            _connectionStatus = true;
+          });
           print(_connectionStatus);
         });
         break;
@@ -68,7 +71,10 @@ class _FavoritesState extends State<Favorites> {
           break;
         }
         setState(() {
-          setState((){erros = false; _connectionStatus = true;});
+          setState(() {
+            erros = false;
+            _connectionStatus = true;
+          });
           print(_connectionStatus);
         });
         break;
@@ -76,7 +82,10 @@ class _FavoritesState extends State<Favorites> {
         if (!mounted) {
           break;
         }
-        setState((){erros = false; _connectionStatus = false;});
+        setState(() {
+          erros = false;
+          _connectionStatus = false;
+        });
         print(_connectionStatus);
         break;
       default:
@@ -84,7 +93,10 @@ class _FavoritesState extends State<Favorites> {
           break;
         }
         ;
-        setState((){erros = false; _connectionStatus = false;});
+        setState(() {
+          erros = false;
+          _connectionStatus = false;
+        });
         print(_connectionStatus);
         break;
     }
@@ -108,7 +120,7 @@ class _FavoritesState extends State<Favorites> {
   }
 
   //get events from user favorites and gets them from api
-  Future<List<Event?>?> loadFavorites() async{
+  Future<List<Event?>?> loadFavorites() async {
     print('Loading Users Favorites Events ...');
     up = await UserPreferences();
     eventosFavoritos!.clear();
@@ -131,17 +143,15 @@ class _FavoritesState extends State<Favorites> {
       var resposta;
       try {
         resposta = await http.get(eventosfavoritosurl);
-      }
-      on SocketException catch(e){
+      } on SocketException catch (e) {
         print(e.toString());
         erros = true;
         return eventosFavLista;
-      }
-      on http.ClientException catch (e) {
+      } on http.ClientException catch (e) {
         print(e.toString());
         erros = true;
-        return eventosFavLista;}
-      on PlatformException catch (e) {
+        return eventosFavLista;
+      } on PlatformException catch (e) {
         print(e.toString());
         erros = true;
         return eventosFavLista;
@@ -149,8 +159,7 @@ class _FavoritesState extends State<Favorites> {
         print(e.toString());
         erros = true;
         return eventosFavLista;
-      }
-      catch(e){
+      } catch (e) {
         erros = true;
         return eventosFavLista;
       }
@@ -284,38 +293,37 @@ class _FavoritesState extends State<Favorites> {
                                                   listacategorias: listcateg,
                                                   imagebool: imagebool,
                                                 ),
-                                                /*EventoContainer(
-                                                userPreferences: up,
-                                                id: eventid,
-                                                title: title,
-                                                location: location,
-                                                eventdate: eventdate,
-                                                timeStart: timeStart,
-                                                image: image,
-                                                imagebool: imagebool,
-                                                categorylist: listcateg,
-                                              ),*/
                                               );
                                             }),
                                       );
                                     case ConnectionState.waiting:
                                       return Container(
                                         child: Center(
-                                            child: CircularProgressIndicator()),
+                                            child: Theme(
+                                          data: Theme.of(context).copyWith(
+                                            accentColor:
+                                                Color.fromRGBO(233, 168, 3, 1),
+                                          ),
+                                          child: CircularProgressIndicator(),
+                                        )),
                                       );
                                     case ConnectionState.active:
                                       return Container(
                                           child: Center(
-                                              child:
-                                                  CircularProgressIndicator()));
+                                              child: Theme(
+                                        data: Theme.of(context).copyWith(
+                                          accentColor:
+                                              Color.fromRGBO(233, 168, 3, 1),
+                                        ),
+                                        child: CircularProgressIndicator(),
+                                      )));
                                   }
                                 }),
                           ),
                         )
                       : erros == true
                           ? Expanded(child: ContainerGeneralError())
-                          : Expanded(
-                              child: ContainerNetworkError()) 
+                          : Expanded(child: ContainerNetworkError())
                 ],
               ),
             ),
@@ -858,7 +866,8 @@ class _WidgetImagemDetalhesEventosState
                               ),
                               widget.listacategorias.length > 1
                                   ? CategoryplusWidget(context,
-                                      categorytext: '+1')
+                                      categorytext:
+                                          '+${widget.listacategorias.length - 1}')
                                   : Container(),
                             ],
                           ),
@@ -875,6 +884,8 @@ class _WidgetImagemDetalhesEventosState
                           child: Text(
                             widget.evento.title!,
                             style: Theme.of(context).textTheme.headline2!,
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),
@@ -913,56 +924,31 @@ class _WidgetImagemDetalhesEventosState
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Image.asset(
-                                  'assets/images/icons/icon_eventdetailslocation.png',
-                                  height: SizeConfig.imageSizeMultiplier! * 2.5,
+                                Flexible(
+                                  flex: 1,
+                                  child: Image.asset(
+                                    'assets/images/icons/icon_eventdetailslocation.png',
+                                    height:
+                                        SizeConfig.imageSizeMultiplier! * 2.5,
+                                  ),
                                 ),
                                 SizedBox(
                                   width: SizeConfig.widthMultiplier! * 1.5,
                                 ),
-                                Text(widget.evento.location!,
-                                    style: Theme.of(context).textTheme.caption)
+                                Flexible(
+                                  flex: 9,
+                                  child: Text(
+                                    widget.evento.location!,
+                                    style: Theme.of(context).textTheme.caption,
+                                    softWrap: true,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                )
                               ],
                             )
                           ],
                         ),
                       ),
-                      /*Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Image.asset(
-                              'assets/images/icons/icon_eventdetailswatch.png',
-                              scale: 0.5 * SizeConfig.imageSizeMultiplier!),
-                          SizedBox(
-                            width: SizeConfig.widthMultiplier! * 1.5,
-                          ),
-                          Text(
-                              '${formatDate(widget.evento.dates![0].date!.timeStart!, [
-                                    HH
-                                  ])}' +
-                                  'h' +
-                                  '${formatDate(widget.evento.dates![0].date!.timeStart!, [
-                                    nn
-                                  ])}',
-                              style: Theme.of(context).textTheme.caption),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Image.asset(
-                            'assets/images/icons/icon_eventdetailslocation.png',
-                            scale: 0.5 * SizeConfig.imageSizeMultiplier!,
-                          ),
-                          SizedBox(
-                            width: SizeConfig.widthMultiplier! * 1.5,
-                          ),
-                          Text(widget.evento.location!,
-                              style: Theme.of(context).textTheme.caption)
-                        ],
-                      )*/
                     ],
                   ),
                 ),
@@ -984,7 +970,7 @@ class WidgetContainerImagemData extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     DateTime startdate = evento.dates![0].date!.eventDate!;
-    var mes = formatDate(startdate, [M]);
+    var mes = formatDate(startdate, [M], locale: PortugueseDateLocale());
     return Container(
       height: SizeConfig.heightMultiplier! * 19,
       width: SizeConfig.maxWidth,

@@ -89,16 +89,23 @@ class _CategoryTabState extends State<CategoryTab> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 32 * SizeConfig.widthMultiplier!,
+      //width: 32 * SizeConfig.widthMultiplier!,
       height: 4 * SizeConfig.heightMultiplier!,
       child: ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(15)),
         child: TextButton(
-          child: Text('${widget.categoryname}',
-              style: Theme.of(context)
-                  .textTheme
-                  .headline4!
-                  .copyWith(fontSize: SizeConfig.textMultiplier! * 1.5)),
+          child: Padding(
+            padding: EdgeInsets.only(left: SizeConfig.widthMultiplier! * 5,
+            right: SizeConfig.widthMultiplier! * 5
+            ),
+            child: Text('${widget.categoryname}',
+                style: Theme.of(context)
+                    .textTheme
+                    .headline4!
+                    .copyWith(fontSize: SizeConfig.textMultiplier! * 1.5),
+                    textAlign: TextAlign.center,
+                    ),
+          ),
           style: ButtonStyle(
               backgroundColor: widget.buttons.isSelected(widget.id!)
                   ? MaterialStateProperty.all<Color>(

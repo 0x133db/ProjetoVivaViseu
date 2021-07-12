@@ -14,7 +14,6 @@ import 'package:vivaviseu/favorites.dart';
 import 'package:vivaviseu/objects.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
-import 'package:vivaviseu/calendareventslist.dart';
 import 'package:vivaviseu/utils/containers.dart';
 import 'package:vivaviseu/utils/responsive.dart';
 import 'package:vivaviseu/utils/utils.dart';
@@ -154,13 +153,34 @@ class _CalendarState extends State<Calendar> {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:
                     return Container(
-                        child: Center(child: CircularProgressIndicator()));
+                        child: Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )));
                   case ConnectionState.waiting:
                     return Container(
-                        child: Center(child: CircularProgressIndicator()));
+                        child: Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )));
                   case ConnectionState.active:
                     return Container(
-                        child: Center(child: CircularProgressIndicator()));
+                        child: Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )));
                   case ConnectionState.done:
                     //eventschange.value = true;
                     return Container(
@@ -452,19 +472,37 @@ class _EventsDayListState extends State<EventsDayList> {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
               return Container(
-                height: 500,
                 color: Colors.green,
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
               );
             case ConnectionState.waiting:
               return Container(
-                height: 500,
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
               );
             case ConnectionState.active:
               return Container(
-                height: 500,
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
               );
             case ConnectionState.done:
               return ListView.builder(

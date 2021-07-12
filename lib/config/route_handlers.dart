@@ -1,12 +1,9 @@
-import 'package:vivaviseu/adicionar_eventos_calendar.dart';
+
 import 'package:vivaviseu/detalhesevento.dart';
-import 'package:vivaviseu/eventdetails.dart';
 import 'package:vivaviseu/home.dart';
-import 'package:flutter/painting.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:vivaviseu/listagemgeral.dart';
-import 'package:vivaviseu/objects.dart';
 
 //Ir para homescreen
 var rootHandler = Handler(

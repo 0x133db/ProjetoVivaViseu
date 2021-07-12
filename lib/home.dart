@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:vivaviseu/calendar.dart';
 import 'package:vivaviseu/config/router.dart';
-import 'package:vivaviseu/eventdetails.dart';
 import 'package:vivaviseu/favorites.dart';
 import 'package:vivaviseu/highlightedevents.dart';
 import 'package:vivaviseu/login.dart';

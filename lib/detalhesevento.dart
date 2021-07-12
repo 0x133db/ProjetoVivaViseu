@@ -122,17 +122,38 @@ class _DetalhesEventoState extends State<DetalhesEvento>
                   case ConnectionState.none:
                     return Container(
                       color: Color.fromRGBO(47, 59, 77, 1),
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child:Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                     );
                   case ConnectionState.waiting:
                     return Container(
                       color: Color.fromRGBO(47, 59, 77, 1),
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child:Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                     );
                   case ConnectionState.active:
                     return Container(
                       color: Color.fromRGBO(47, 59, 77, 1),
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child:Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        accentColor:
+                                                            Color.fromRGBO(233, 168, 3, 1),),
+                                                child:
+                                                     CircularProgressIndicator(),
+                                              )),
                     );
                   case ConnectionState.done:
                     Event _event = snapshot.data;
@@ -896,31 +917,29 @@ class Links extends StatelessWidget {
   Widget build(BuildContext context) {
     final uri = Uri.parse(text);
     String iconpath = getIconPath(uri);
-    return Padding(
-      padding: EdgeInsets.only(
-          top: SizeConfig.heightMultiplier! * 0.1,
-          bottom: SizeConfig.heightMultiplier! * 0.1),
-      child: Container(
-        height: SizeConfig.heightMultiplier! * 5,
-        width: SizeConfig.maxWidth,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Flexible(
-              flex: 1,
-              fit: FlexFit.tight,
-              child: Padding(
-                padding: EdgeInsets.only(right: SizeConfig.heightMultiplier!),
-                child: Image.asset(
-                  iconpath,
-                  height: SizeConfig.heightMultiplier! * 2.9,
-                ),
+    return Container(
+      height: SizeConfig.heightMultiplier! * 5,
+      width: SizeConfig.maxWidth,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Flexible(
+            flex: 1,
+            fit: FlexFit.tight,
+            child: Padding(
+              padding: EdgeInsets.only(right: SizeConfig.heightMultiplier!),
+              child: Image.asset(
+                iconpath,
+                height: SizeConfig.heightMultiplier! * 2.9,
               ),
             ),
-            Expanded(
-              flex: 11,
-              //fit: FlexFit.loose,
+          ),
+          Expanded(
+            flex: 11,
+            //fit: FlexFit.loose,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
               child: Container(
                 width: SizeConfig.widthMultiplier! * 70,
                 //color: Colors.cyan,
@@ -930,8 +949,8 @@ class Links extends StatelessWidget {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
