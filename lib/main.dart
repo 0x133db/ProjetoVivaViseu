@@ -11,10 +11,10 @@ import 'package:vivaviseu/utils/style.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //initializeDateFormatting().then((_) => runApp(App()));
+  initializeDateFormatting().then((_) => runApp(App()));
   
   ///Ver noutros dispositivos
-  runApp(DevicePreview(enabled: true ,builder: (context){return App();}));
+  //runApp(DevicePreview(enabled: true ,builder: (context){return App();}));
 }
 
 class App extends StatefulWidget {

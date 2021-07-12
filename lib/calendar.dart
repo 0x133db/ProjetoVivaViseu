@@ -289,7 +289,7 @@ class _CalendarTestState extends State<CalendarTest> {
   @override
   void initState() {
     print('[---------- Loading Eventos ----------]');
-    super.initState();
+    //super.initState();
     if (_getEventsForDay(_selectedDay).isNotEmpty) {
       widget.customFunction(buildListEvent(_getEventsForDay(_selectedDay)));
     }
