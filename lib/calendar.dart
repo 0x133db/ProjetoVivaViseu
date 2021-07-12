@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ import 'package:vivaviseu/objects.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
 import 'package:vivaviseu/calendareventslist.dart';
+import 'package:vivaviseu/utils/containers.dart';
 import 'package:vivaviseu/utils/responsive.dart';
 import 'package:vivaviseu/utils/utils.dart';
 
@@ -29,11 +32,55 @@ class _CalendarState extends State<Calendar> {
   final ValueNotifier<bool> eventschange = ValueNotifier(false);
   late UserPreferences teste;
 
+    bool _connectionStatus = true;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
   @override
   void initState() {
     print('[---------- Página de Calendário de Eventos ----------]');
     super.initState();
     teste = UserPreferences();
+        initConnectivity();
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+    @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+    Future<void> initConnectivity() async {
+    ConnectivityResult result = ConnectivityResult.none;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      print(e.toString());
+    }
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    switch (result) {
+      case ConnectivityResult.wifi:
+              setState(() => _connectionStatus = true);
+        break;
+      case ConnectivityResult.mobile:
+              setState(() => _connectionStatus = true);
+        break;
+      case ConnectivityResult.none:
+        setState(() => _connectionStatus = false);
+        break;
+      default:
+        setState(() => _connectionStatus = true);
+        break;
+    }
   }
 
   Future<void>? loadeventsmap() async {
@@ -137,7 +184,7 @@ class _CalendarState extends State<Calendar> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(25, 10, 25, 0),
-          child: FutureBuilder(
+          child: _connectionStatus == true ? FutureBuilder(
               future: loadeventsmap(),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 switch (snapshot.connectionState) {
@@ -180,7 +227,7 @@ class _CalendarState extends State<Calendar> {
                                       ? EventsDayList(
                                           listaEvent: eventidsStrings,
                                           teste: teste)
-                                      : NoEventsContainer();
+                                      : ContainerNoEventsThatDay();
                                 },
                               ),
                             ),
@@ -189,7 +236,7 @@ class _CalendarState extends State<Calendar> {
                       ),
                     );
                 }
-              }),
+              }) : ContainerNetworkError(),
         ),
       ),
     );

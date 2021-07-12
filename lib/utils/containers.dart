@@ -139,6 +139,50 @@ class ContainerNoEvents extends StatelessWidget {
   }
 }
 
+
+class ContainerNoEventsThatDay extends StatelessWidget {
+  const ContainerNoEventsThatDay({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+          left: SizeConfig.widthMultiplier! * 15,
+          right: SizeConfig.widthMultiplier! * 15,
+          top: SizeConfig.heightMultiplier! * 1),
+      child: Container(
+        height: SizeConfig.maxHeight,
+        width: SizeConfig.maxWidth,
+        child: Center(
+            child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: SizeConfig.heightMultiplier! * 1),
+              child: Text(
+                'Oops!',
+                style: Theme.of(context)
+                    .textTheme
+                    .headline3!
+                    .copyWith(fontSize: 2.3 * SizeConfig.textMultiplier!),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: SizeConfig.heightMultiplier! * 1),
+              child: Text(
+                'Neste dia não existem eventos...',
+                style: Theme.of(context).textTheme.headline4,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        )),
+      ),
+    );
+  }
+}
+
 class ContainerNoHighlights extends StatelessWidget {
   const ContainerNoHighlights({Key? key}) : super(key: key);
 

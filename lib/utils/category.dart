@@ -79,6 +79,7 @@ class _CategoryTabState extends State<CategoryTab> {
 
   @override
   void initState() {
+    super.initState();
     if(widget.preselected != null){
       if(widget.preselected != selected)
       selected = widget.preselected!;
@@ -153,16 +154,23 @@ class _CategoryTabSimple extends State<CategoryTabSimple> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 32 * SizeConfig.widthMultiplier!,
+      //width: 32 * SizeConfig.widthMultiplier!,
       height: 4 * SizeConfig.heightMultiplier!,
       child: ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(15)),
         child: TextButton(
-          child: Text('${widget.categoryname}',
-              style: Theme.of(context)
-                  .textTheme
-                  .headline4!
-                  .copyWith(fontSize: SizeConfig.textMultiplier! * 1.5)),
+          child: Padding(
+            padding: EdgeInsets.only(
+                          right: SizeConfig.widthMultiplier! * 5,
+            left: SizeConfig.widthMultiplier! * 5,
+            ),
+            child: Text('${widget.categoryname}',
+              textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline4!
+                    .copyWith(fontSize: SizeConfig.textMultiplier! * 1.5)),
+          ),
           style: ButtonStyle(
               backgroundColor: selected == true
                   ? MaterialStateProperty.all<Color>(
@@ -175,7 +183,6 @@ class _CategoryTabSimple extends State<CategoryTabSimple> {
                     BorderRadius.circular(2.1 * SizeConfig.heightMultiplier!),
               ))),
           onPressed: () {
-            print('Selected Category: ${widget.id} e selected = $selected');
                        Router_.router.navigateTo(context, '/listagemgeral?categoryid=${widget.id}');
           },
         ),

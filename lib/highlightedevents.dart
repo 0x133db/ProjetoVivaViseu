@@ -127,7 +127,6 @@ class HighlightedEventsState extends State<HighlightedEvents> {
     if (_connectivityResult != ConnectivityResult.none) {
       eventosemdestaque = [];
       numeroeventos = 0;
-      print('Conexão $_connectionStatus');
       var resposta;
       try {
         resposta = await http.get(eventosapiUrl);
