@@ -122,38 +122,35 @@ class _DetalhesEventoState extends State<DetalhesEvento>
                   case ConnectionState.none:
                     return Container(
                       color: Color.fromRGBO(47, 59, 77, 1),
-                      child: Center(child:Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )),
+                      child: Center(
+                          child: Theme(
+                        data: Theme.of(context).copyWith(
+                          accentColor: Color.fromRGBO(233, 168, 3, 1),
+                        ),
+                        child: CircularProgressIndicator(),
+                      )),
                     );
                   case ConnectionState.waiting:
                     return Container(
                       color: Color.fromRGBO(47, 59, 77, 1),
-                      child: Center(child:Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )),
+                      child: Center(
+                          child: Theme(
+                        data: Theme.of(context).copyWith(
+                          accentColor: Color.fromRGBO(233, 168, 3, 1),
+                        ),
+                        child: CircularProgressIndicator(),
+                      )),
                     );
                   case ConnectionState.active:
                     return Container(
                       color: Color.fromRGBO(47, 59, 77, 1),
-                      child: Center(child:Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )),
+                      child: Center(
+                          child: Theme(
+                        data: Theme.of(context).copyWith(
+                          accentColor: Color.fromRGBO(233, 168, 3, 1),
+                        ),
+                        child: CircularProgressIndicator(),
+                      )),
                     );
                   case ConnectionState.done:
                     Event _event = snapshot.data;
@@ -417,147 +414,6 @@ class _DetalhesEventoState extends State<DetalhesEvento>
                                                   ],
                                                 ),
                                               )
-                                              /*Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              Container(
-                                                //color: Colors.yellow,
-                                                height:
-                                                    SizeConfig.heightMultiplier! *
-                                                        4,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceAround,
-                                                  children: [
-                                                    Image.asset(
-                                                      'assets/images/icons/icon_eventdetailscalendar.png',
-                                                      scale: 2.5,
-                                                    ),
-                                                    Image.asset(
-                                                      'assets/images/icons/icon_eventdetailslocation.png',
-                                                      scale: 2.5,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                width:
-                                                    SizeConfig.widthMultiplier! *
-                                                        2,
-                                              ),
-                                              Container(
-                                                height:
-                                                    SizeConfig.heightMultiplier! *
-                                                        4,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceAround,
-                                                  children: [
-                                                    Text(
-                                                        formatDate(
-                                                                _event
-                                                                    .dates![0]
-                                                                    .date!
-                                                                    .eventDate!,
-                                                                [dd]) +
-                                                            ' de ' +
-                                                            formatDate(
-                                                                _event
-                                                                    .dates![0]
-                                                                    .date!
-                                                                    .eventDate!,
-                                                                [MM],
-                                                                locale:
-                                                                    PortugueseDateLocale()) +
-                                                            ' ' +
-                                                            formatDate(
-                                                                _event
-                                                                    .dates![0]
-                                                                    .date!
-                                                                    .eventDate!,
-                                                                [yyyy]),
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .headline4),
-                                                    Text(_event.location!,
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .headline4),
-                                                  ],
-                                                ),
-                                              ),
-                                              ///////////////////////
-                                              SizedBox(
-                                                width:
-                                                    SizeConfig.widthMultiplier! *
-                                                        2,
-                                              ),
-                                              Container(
-                                                  height: SizeConfig
-                                                          .heightMultiplier! *
-                                                      4,
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceAround,
-                                                    children: [
-                                                      Image.asset(
-                                                        'assets/images/icons/icon_eventdetailswatch.png',
-                                                        scale: 2.5,
-                                                      ),
-                                                      Text('  '),
-                                                    ],
-                                                  )),
-                                              SizedBox(
-                                                width:
-                                                    SizeConfig.widthMultiplier! *
-                                                        2,
-                                              ),
-                                              Container(
-                                                  height: SizeConfig
-                                                          .heightMultiplier! *
-                                                      4,
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceAround,
-                                                    children: [
-                                                      Text(
-                                                          formatDate(
-                                                                  _event
-                                                                      .dates![0]
-                                                                      .date!
-                                                                      .timeStart!,
-                                                                  [HH]) +
-                                                              'h' +
-                                                              formatDate(
-                                                                  _event
-                                                                      .dates![0]
-                                                                      .date!
-                                                                      .timeStart!,
-                                                                  [nn]),
-                                                          style: Theme.of(context)
-                                                              .textTheme
-                                                              .headline4),
-                                                      Text('  '),
-                                                    ],
-                                                  )),
-                                            ],
-                                          ),
-                                        */
                                             ]),
                                       ),
                                     ))
@@ -751,14 +607,14 @@ class _DetalhesEventoState extends State<DetalhesEvento>
                 }
               })
           : SafeArea(
-            top: false,
-            child: Scaffold(
-              backgroundColor: Color.fromARGB(255, 34, 42, 54),
-              body: Container(
-                height: SizeConfig.maxHeight,
-                width: SizeConfig.maxWidth,
-                child: Center(child: ContainerNetworkError()))),
-          );
+              top: false,
+              child: Scaffold(
+                  backgroundColor: Color.fromARGB(255, 34, 42, 54),
+                  body: Container(
+                      height: SizeConfig.maxHeight,
+                      width: SizeConfig.maxWidth,
+                      child: Center(child: ContainerNetworkError()))),
+            );
     });
   }
 }

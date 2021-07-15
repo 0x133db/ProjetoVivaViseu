@@ -29,12 +29,6 @@ var listagemgeralpesquisaHandler = Handler(
 );
 
 //Ir para Detalhes de Evento
-/*var eventdetailsHandler = Handler(
-    handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
-      String? eventoid = params["eventoid"]?.first;
-      String? favorite = params["favorite"]?.first;
-  return EventDetails(eventid: int.parse(eventoid!));
-});*/
 
 var eventdetailsHandler = Handler(
     handlerFunc: (BuildContext? context, Map<String, List<String>> params) {

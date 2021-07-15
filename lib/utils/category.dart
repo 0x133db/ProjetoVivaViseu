@@ -4,29 +4,6 @@ import 'package:vivaviseu/config/router.dart';
 import 'package:vivaviseu/utils/responsive.dart';
 
 
-/*class GroupButtons{
-  int? selectedCategory = 999;
-
-  GroupButtons();
-
-  setSelected(int selectedCat){
-    this.selectedCategory = selectedCat;
-  }
-
-  getSelected(){
-    return this.selectedCategory;
-  }
-
-  removeSelected(){
-    this.selectedCategory = 999;
-  }
-
-  bool isSelected(int num){
-    return num == this.selectedCategory;
-  }
-
-}*/
-
 class GroupButtons{
   int? selectedCategory = 999;
 
@@ -304,10 +281,6 @@ class CategoryBasic extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(100)),
         child: TextButton(
           onPressed: () {
-            /*setState(() {
-                  selected = !selected;
-                  Router_.router.navigateTo(context, '/allevents/category?categoryname=${widget.categoryname}');
-                });*/
           },
           child: Text('${name}', style: Theme.of(context).textTheme.headline4!),
           style: ButtonStyle(

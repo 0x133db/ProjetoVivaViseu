@@ -8,7 +8,6 @@ import 'package:vivaviseu/calendar.dart';
 import 'package:vivaviseu/config/router.dart';
 import 'package:vivaviseu/favorites.dart';
 import 'package:vivaviseu/highlightedevents.dart';
-import 'package:vivaviseu/login.dart';
 import 'package:vivaviseu/main.dart';
 import 'package:vivaviseu/objects.dart';
 import 'package:http/http.dart' as http;
@@ -41,7 +40,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      //pageController.animateToPage(index, duration: Duration(milliseconds: 500), curve: Curves.ease);
     });
   }
 
@@ -229,78 +227,3 @@ class EventContainerWidget extends StatelessWidget {
     );
   }
 }
-
-/*
-class Configuracoes extends StatefulWidget {
-  @override
-  _ConfiguracoesState createState() => _ConfiguracoesState();
-}
-
-class _ConfiguracoesState extends State<Configuracoes> {
-  final auth = FirebaseAuth.instance;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color.fromARGB(255, 34, 42, 54),
-      appBar: AppBar(
-        toolbarHeight: 80.0,
-        title: Text(
-          "Favoritos",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w400,
-            fontSize: 30.0,
-          ),
-        ),
-        backgroundColor: Color.fromARGB(255, 34, 42, 54),
-        elevation: 0,
-      ),
-      body: ListView(
-        children: <Widget>[
-          SizedBox(
-            height: 40.0,
-          ),
-          ListTile(
-            leading: Icon(Icons.question_answer),
-            title: Text('Aparência',
-                style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 30.0,
-                )),
-            subtitle: Text('Temas e cores da aplicação'),
-          ),
-          SizedBox(
-            height: 10.0,
-          ),
-          ListTile(
-            leading: Icon(Icons.landscape_outlined),
-            title: Text('Idioma',
-                style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 30.0,
-                )),
-            subtitle: Text('Idioma da aplicação'),
-          ),
-          SizedBox(
-            height: 10.0,
-          ),
-          ListTile(
-            leading: Icon(Icons.logout),
-            title: Text('Sign Out',
-                style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 30.0,
-                )),
-            onTap: () {
-              auth.signOut();
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => LoginScreen()));
-            },
-          )
-        ],
-      ),
-    );
-  }
-}
-*/

@@ -768,12 +768,6 @@ class _EventCardState extends State<EventCard> {
                         height: 2,
                       ),
                       Row(
-                        /*mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,*/
                         children: [
                           Padding(
                             padding: EdgeInsets.only(

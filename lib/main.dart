@@ -13,7 +13,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   initializeDateFormatting().then((_) => runApp(App()));
   
-  ///Ver noutros dispositivos
+  ///Ver noutros dispositivos // não é 100% confiável mas ajuda
   //runApp(DevicePreview(enabled: true ,builder: (context){return App();}));
 }
 

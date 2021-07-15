@@ -153,34 +153,31 @@ class _CalendarState extends State<Calendar> {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:
                     return Container(
-                        child: Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )));
+                        child: Center(
+                            child: Theme(
+                      data: Theme.of(context).copyWith(
+                        accentColor: Color.fromRGBO(233, 168, 3, 1),
+                      ),
+                      child: CircularProgressIndicator(),
+                    )));
                   case ConnectionState.waiting:
                     return Container(
-                        child: Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )));
+                        child: Center(
+                            child: Theme(
+                      data: Theme.of(context).copyWith(
+                        accentColor: Color.fromRGBO(233, 168, 3, 1),
+                      ),
+                      child: CircularProgressIndicator(),
+                    )));
                   case ConnectionState.active:
                     return Container(
-                        child: Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )));
+                        child: Center(
+                            child: Theme(
+                      data: Theme.of(context).copyWith(
+                        accentColor: Color.fromRGBO(233, 168, 3, 1),
+                      ),
+                      child: CircularProgressIndicator(),
+                    )));
                   case ConnectionState.done:
                     //eventschange.value = true;
                     return Container(
@@ -473,36 +470,33 @@ class _EventsDayListState extends State<EventsDayList> {
             case ConnectionState.none:
               return Container(
                 color: Colors.green,
-                child: Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )),
+                child: Center(
+                    child: Theme(
+                  data: Theme.of(context).copyWith(
+                    accentColor: Color.fromRGBO(233, 168, 3, 1),
+                  ),
+                  child: CircularProgressIndicator(),
+                )),
               );
             case ConnectionState.waiting:
               return Container(
-                child: Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )),
+                child: Center(
+                    child: Theme(
+                  data: Theme.of(context).copyWith(
+                    accentColor: Color.fromRGBO(233, 168, 3, 1),
+                  ),
+                  child: CircularProgressIndicator(),
+                )),
               );
             case ConnectionState.active:
               return Container(
-                child: Center(child: Theme(
-                                                data: Theme.of(context)
-                                                    .copyWith(
-                                                        accentColor:
-                                                            Color.fromRGBO(233, 168, 3, 1),),
-                                                child:
-                                                     CircularProgressIndicator(),
-                                              )),
+                child: Center(
+                    child: Theme(
+                  data: Theme.of(context).copyWith(
+                    accentColor: Color.fromRGBO(233, 168, 3, 1),
+                  ),
+                  child: CircularProgressIndicator(),
+                )),
               );
             case ConnectionState.done:
               return ListView.builder(
